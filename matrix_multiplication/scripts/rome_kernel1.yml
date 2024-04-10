@@ -1,0 +1,64 @@
+dims : [i, j, k]
+
+arrays:
+   A : [ [i, k], 1]
+   B : [ [k, j], 1]
+   C : [ [i, j], 2]
+reuse : 
+   A: [j]
+   B: [i]
+   C: [k]
+
+values:
+  n_levels: 3
+  cache: [32768, 262144, 8388608] //cache: [64KB, 512KB, 16384KB]
+  dims: [1000, 700, 800]
+
+
+------------------------------------------------------------------
+
+-----------------
+Result from IOUB:
+-----------------
+Cache sizes (in words):  [32768, 262144, 8388608]
+Best solution:
+	Permutation:  L1:[i,j]  L2:[k]  L3:[i,j,k]  MEM:[i,j,k]
+	Footprint:  {'L1': Ti_0*Tj_0 + Ti_0*Tk_0 + Tj_0*Tk_0, 'L2': Ti_1*Tj_1 + Ti_1*Tk_1 + Tj_1*Tk_1, 'L3': Ti_2*Tj_2 + Ti_2*Tk_2 + Tj_2*Tk_2}
+	Analytical cost expression:
+		 {'L1': Ni*Nj*Nk*(2/Tk_1 + 1/Tj_0 + 1/Ti_0), 'L2': Ni*Nj*Nk*(2/Tk_1 + 1/Tj_1 + 1/Ti_2), 'L3': Ni*Nj*Nk*(2/Tk_2 + 1/Tj_2 + 1/Ni)}
+		 Ni*Nj*Nk*(2/Tk_1 + 1/Tj_0 + 1/Ti_0) + Ni*Nj*Nk*(2/Tk_1 + 1/Tj_1 + 1/Ti_2) + Ni*Nj*Nk*(2/Tk_2 + 1/Tj_2 + 1/Ni)
+	Optimal sizes:  Tk_0=1   Ti_0=140   Tj_0=230   Tk_1=619   Ti_1=140   Tj_1=230   Ti_2=1000   Tj_2=700   Tk_2=800
+	Parameters:  C_1=32768   C_2=262144   C_3=8388608   Ni=1000   Nj=700   Nk=800
+	Total Cost:  15808305
+	Data volume:  L1: 8244152    L2: 4804152    L3: 2760000
+	Data footprint:  L1: 32570    L2: 261230    L3: 2060000
+	Schedule:
+
+		for (k2=0; k2<800; k2+=619)
+		  for (j2=0; j2<700; j2+=230)
+		    for (i2=0; i2<1000; i2+=140) {
+		      Sk2=min(619,800-k2) // in {619, 181}
+		      for (k1=k2; k1<k2+Sk2; k1+=1) {
+		        Sj2=min(230,700-j2) // in {10, 230}
+		        for (j=j2; j<j2+Sj2; j+=1) {
+		          Si2=min(140,1000-i2) // in {140, 20}
+		          for (i=i2; i<i2+Si2; i+=1)
+		            <bb>;
+		 }}}
+
+--------------------------------------------------
+-------
+Kernel:
+-------
+for (k2=0; k2<800; k2+=619):
+    for (j2=0; j2<700; j2+=230):
+        for (i2=0; i2<1000; i2+=140):
+            Sk2=min(619,800-k2) # in {619, 181}
+            for (k1=k2; k1<k2+Sk2; k1+=1):
+                Sj2=min(230,700-j2) # in {10, 230}
+                for (j=j2; j<j2+Sj2; j+=1):
+                    Si2=min(140,1000-i2) # in {140, 20}
+                    for (i=i2; i<i2+Si2; i+=1):
+                        # Perform matrix multiplication computation here
+                        C[i][j] += A[i][k1] * B[k1][j]
+
