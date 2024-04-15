@@ -1,4 +1,8 @@
-# eval_ioopt
+# eval_tiling_tools
+to update the git repo fetch/push url:     
+`git remote -v`  
+`git remote set-url origin https://github.com/xintin/eval_tiling_tools.git`  
+confirm: `git remote -v`  
 
 ### To evaluate IOOPT:
 `cd matrix_multiplication`   
