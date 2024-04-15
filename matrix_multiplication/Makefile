@@ -1,7 +1,7 @@
 # Makefile
 
 CXX ?= g++ #clang++
-CXXFLAGS = -Iinclude -Wall -std=c++17 -o3
+CXXFLAGS = -Iinclude -Wall -std=c++17 -o3 
 LDFLAGS =
 COMPILER ?= gcc
 
@@ -9,7 +9,7 @@ COMPILER ?= gcc
 TARGET = build_$(COMPILER)/matrix_exec
 
 # Source and Object files
-SRCS = $(wildcard src/*.cpp)
+SRCS = $(filter-out src/simple_comparison.cpp, $(wildcard src/*.cpp))
 OBJS = $(SRCS:src/%.cpp=build_$(COMPILER)/%.o)
 
 all: $(TARGET)

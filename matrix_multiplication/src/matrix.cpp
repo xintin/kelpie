@@ -102,7 +102,7 @@ void Matrix::mm(const Matrix &A, const Matrix &B) {
 }
 
 // tiled matrix multiplication
-void Matrix::tiledMM_kernel1(const Matrix &A, const Matrix &B) {
+void Matrix::tiledMM_kernel_ioopt(const Matrix &A, const Matrix &B) {
   if (A.cols != B.rows) {
     throw std::invalid_argument(
         "Matrices A and B dimensions do not allow multiplication.");
@@ -149,4 +149,42 @@ void Matrix::tiledMM_kernel1(const Matrix &A, const Matrix &B) {
   // start).count();
 
   // return duration;
+}
+
+void Matrix::tiledMM_kernel_pluto(const Matrix &A, const Matrix &B) {
+  if (A.cols != B.rows) {
+    throw std::invalid_argument(
+        "Matrices A and B dimensions do not allow multiplication.");
+  }
+
+  size_t t1, t2, t3, t4, t5, t6;
+  size_t lbv, ubv;
+
+  size_t M = A.rows;
+  size_t K = A.cols;
+  size_t N = B.cols;
+
+  this->data.resize(M, std::vector<double>(N, 0.0));
+  this->rows = M;
+  this->cols = N;
+
+  // if ((K >= 1) && (M >= 1) && (N >= 1)) {
+  for (t1 = 0; t1 <= (M - 1) / 32; t1++) {
+    for (t2 = 0; t2 <= (N - 1) / 32; t2++) {
+      for (t3 = 0; t3 <= (K - 1) / 32; t3++) {
+        for (t4 = 32 * t1; t4 <= std::min(M - 1, 32 * t1 + 31); t4++) {
+          for (t5 = 32 * t3; t5 <= std::min(K - 1, 32 * t3 + 31); t5++) {
+            lbv = 32 * t2;
+            ubv = std::min(N - 1, 32 * t2 + 31);
+            // #pragma ivdep
+            // #pragma vector always
+            for (t6 = lbv; t6 <= ubv; t6++) {
+              (*this)(t4, t6) += A(t4, t5) * B(t5, t6);
+            }
+          }
+        }
+      }
+    }
+  }
+  // }
 }

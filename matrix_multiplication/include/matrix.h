@@ -23,7 +23,8 @@ public:
   const double &operator()(const size_t &row, const size_t &col) const;
 
   void mm(const Matrix &A, const Matrix &B);
-  void tiledMM_kernel1(const Matrix &A, const Matrix &B);
+  void tiledMM_kernel_ioopt(const Matrix &A, const Matrix &B);
+  void tiledMM_kernel_pluto(const Matrix &A, const Matrix &B);
 
   void fill(double value);
   void randomize();   // Fills the matrix with random numbers
@@ -36,7 +37,7 @@ public:
   static void testTiledMM(const Matrix &A, const Matrix &B, int maxTileSize);
 
 private:
-  static void tiledMM_kernel1(Matrix &C, const Matrix &A, const Matrix &B,
+  static void tiledMM_kernel_ioopt(Matrix &C, const Matrix &A, const Matrix &B,
                               size_t tileK, size_t tileJ, size_t tileI);
 };
 

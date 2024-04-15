@@ -26,7 +26,7 @@ void MatrixTester::testTiledMM(const Matrix &A, const Matrix &B,
 
         // time taken for each configuration
         auto start = std::chrono::high_resolution_clock::now();
-        MatrixTester::tiledMM_kernel1(C_tiled, A, B, tileK, tileJ, tileI);
+        MatrixTester::tiledMM_kernel_ioopt(C_tiled, A, B, tileK, tileJ, tileI);
         auto stop = std::chrono::high_resolution_clock::now();
 
         double duration =
@@ -45,8 +45,9 @@ void MatrixTester::testTiledMM(const Matrix &A, const Matrix &B,
   }
 }
 
-void MatrixTester::tiledMM_kernel1(Matrix &C, const Matrix &A, const Matrix &B,
-                                   size_t tileK, size_t tileJ, size_t tileI) {
+void MatrixTester::tiledMM_kernel_ioopt(Matrix &C, const Matrix &A,
+                                        const Matrix &B, size_t tileK,
+                                        size_t tileJ, size_t tileI) {
   if (A.getCols() != B.getRows()) {
     throw std::invalid_argument(
         "Matrices A and B dimensions do not allow multiplication.");

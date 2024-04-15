@@ -36,7 +36,11 @@ int main(int argc, char *argv[]) {
 
   // Timing tiled matrix multiplication
   start = std::chrono::high_resolution_clock::now();
-  C_tiled.tiledMM_kernel1(A, B);
+
+  // select which tiling option do you want to try:
+  // C_tiled.tiledMM_kernel_ioopt(A, B);
+  C_tiled.tiledMM_kernel_pluto(A, B);
+
   stop = std::chrono::high_resolution_clock::now();
   duration =
       std::chrono::duration_cast<std::chrono::duration<double>>(stop - start)
@@ -52,10 +56,15 @@ int main(int argc, char *argv[]) {
     std::cout << "The results differ.\n";
   }
 
-  std::cout << "Testing tile sizes:\n";
+  const char *testEnv = std::getenv("RUN_TEST");
+  bool runTest = (testEnv != nullptr && std::atoi(testEnv) == 1);
 
-  int maxTileSize = 256;
-  MatrixTester::testTiledMM(A, B, maxTileSize);
+  if (runTest) {
+    std::cout << "Testing tile sizes:\n";
+
+    int maxTileSize = 256;
+    MatrixTester::testTiledMM(A, B, maxTileSize);
+  }
 
   // C.print();
 
