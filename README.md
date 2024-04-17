@@ -5,7 +5,8 @@ to update the git repo fetch/push url:
 confirm: `git remote -v`  
 
 ### Results:  
-[Eval Results](https://docs.google.com/spreadsheets/d/1_VqXzBx2B6Bm_sRaVA9pj-VefE9d2efk0Jc_0lSkFy0/edit?usp=sharing)
+[Eval Results](https://docs.google.com/spreadsheets/d/1_VqXzBx2B6Bm_sRaVA9pj-VefE9d2efk0Jc_0lSkFy0/edit?usp=sharing)  
+[Discussion Doc](https://docs.google.com/document/d/1FyeBPwSbOcl6te-JognqiOizmNvFpjR9gca-U1BelME/edit?usp=sharing)
 
 ### To evaluate IOOPT:
 `cd matrix_multiplication`   
