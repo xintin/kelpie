@@ -20,6 +20,7 @@ int main(int argc, char *argv[]) {
   Matrix B(rowsB, colsB, 3.0);
   Matrix C(rowsA, colsB);
   Matrix C_tiled(rowsA, colsB);
+  Matrix C_tiled_pluto(rowsA, colsB);
 
   // Start timing
   auto start = std::chrono::high_resolution_clock::now();
@@ -31,15 +32,14 @@ int main(int argc, char *argv[]) {
           .count();
 
   std::cout << std::fixed << std::setprecision(6)
-            << "Time taken by matrix multiplication: " << duration
+            << "Time taken by naive matrix multiplication: " << duration
             << " seconds.\n";
 
   // Timing tiled matrix multiplication
   start = std::chrono::high_resolution_clock::now();
 
   // select which tiling option do you want to try:
-  // C_tiled.tiledMM_kernel_ioopt(A, B);
-  C_tiled.tiledMM_kernel_pluto(A, B);
+  C_tiled.tiledMM_kernel_ioopt(A, B);
 
   stop = std::chrono::high_resolution_clock::now();
   duration =
@@ -47,11 +47,32 @@ int main(int argc, char *argv[]) {
           .count();
 
   std::cout << std::fixed << std::setprecision(6)
-            << "Time taken by tiled matrix multiplication: " << duration
+            << "Time taken by ioopt tiled matrix multiplication: " << duration
+            << " seconds.\n";
+  if (Matrix::matricesAreEqual(C, C_tiled)) {
+    std::cout << "The results of naive and ioopt multiplication methods are "
+                 "identical.\n";
+  } else {
+    std::cout << "The results differ.\n";
+  }
+
+  start = std::chrono::high_resolution_clock::now();
+
+  // select which tiling option do you want to try:
+  C_tiled_pluto.tiledMM_kernel_pluto(A, B);
+
+  stop = std::chrono::high_resolution_clock::now();
+  duration =
+      std::chrono::duration_cast<std::chrono::duration<double>>(stop - start)
+          .count();
+
+  std::cout << std::fixed << std::setprecision(6)
+            << "Time taken by pluto tiled matrix multiplication: " << duration
             << " seconds.\n";
 
-  if (Matrix::matricesAreEqual(C, C_tiled)) {
-    std::cout << "The results of both multiplication methods are identical.\n";
+  if (Matrix::matricesAreEqual(C, C_tiled_pluto)) {
+    std::cout << "The results of naive and pluto multiplication methods are "
+                 "identical.\n";
   } else {
     std::cout << "The results differ.\n";
   }

@@ -1,7 +1,7 @@
 # Makefile
 
 CXX ?= g++ #clang++
-CXXFLAGS = -Iinclude -Wall -std=c++17 -o3 
+CXXFLAGS = -Iinclude -Wall -std=c++17 -O3 
 LDFLAGS =
 COMPILER ?= gcc
 
