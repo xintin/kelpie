@@ -102,7 +102,10 @@ void matrix_multiply_tiled_ioopt(const std::vector<std::vector<double>> &A,
   }
 }
 
-bool isValid() { return true; }
+bool isValid(std::vector<std::vector<double>> C, std::vector<std::vector<double>> C_tiled) { 
+    if (C != C_tiled) return false;
+    return true; 
+}
 
 int main() {
   std::vector<std::vector<double>> A(M, std::vector<double>(K, 1.0));
@@ -133,9 +136,7 @@ int main() {
   std::cout << "Time taken by pluto tiled matrix multiplication: " << duration
             << " seconds.\n";
 
-  if (C == C_tiled) {
-    std::cout << "The results are same.\n";
-  } else {
+  if (!isValid(C, C_tiled)) {
     std::cout << "The results differ.\n";
   }
 
@@ -151,9 +152,7 @@ int main() {
   std::cout << "Time taken by pluto tiled matrix multiplication: " << duration
             << " seconds.\n";
 
-  if (C == C_tiled) {
-    std::cout << "The results are same.\n";
-  } else {
+  if (!isValid(C, C_tiled)) {
     std::cout << "The results differ.\n";
   }
 
@@ -172,7 +171,7 @@ int main() {
                        stop - start)
                        .count();
 
-        if (C == C_tiled) {
+        if (isValid(C, C_tiled)) {
           std::cout << ts4 << " " << ts5 << " " << ts6 << " " << duration
                     << "\n";
         } else {

@@ -46,7 +46,10 @@ def coordinate_descent(x, y, z, data):
         print("Current position:", current_position)
 
 
-x, y, z = 32, 32, 32  
+# x, y, z = 32, 32, 32  
+x, y, z = 1, 1, 1 
+
+print("Test Seed", x, y, z)
 result = coordinate_descent(x, y, z, data)
 print("Converged to:", result)
 
