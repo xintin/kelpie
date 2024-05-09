@@ -2,6 +2,7 @@
 #include <chrono>
 #include <climits>
 #include <cmath>
+#include <cstdlib>
 #include <iostream>
 #include <tuple>
 #include <vector>
@@ -9,6 +10,8 @@
 #define N 10000
 
 const std::vector<int> allowed_values = {1, 2, 4, 8, 16, 32, 64, 128, 256, 512};
+// const std::vector<int> allowed_values = {512, 256, 128, 64, 32, 16, 8, 4, 2,
+// 1};
 
 inline int ceild(int n, int d) {
   return static_cast<int>(
@@ -27,12 +30,20 @@ std::vector<std::vector<int>> b(3 * N, std::vector<int>(N, -1));
 void computationKernel2(std::vector<std::vector<int>> &a,
                         std::vector<std::vector<int>> &b, int T1, int T2);
 
-int measure_performance(int ts1, int ts2) {
-  auto start = std::chrono::high_resolution_clock::now();
-  computationKernel2(a, b, ts1, ts2);
-  auto stop = std::chrono::high_resolution_clock::now();
-  return std::chrono::duration_cast<std::chrono::milliseconds>(stop - start)
-      .count();
+int measure_performance(int ts1, int ts2, int runs) {
+  long long total_duration = 0;
+
+  for (int i = 0; i < runs; ++i) {
+    auto start = std::chrono::high_resolution_clock::now();
+    computationKernel2(a, b, ts1, ts2);
+    auto stop = std::chrono::high_resolution_clock::now();
+
+    total_duration +=
+        std::chrono::duration_cast<std::chrono::milliseconds>(stop - start)
+            .count();
+  }
+
+  return total_duration / runs;
 }
 
 std::vector<std::tuple<int, int>> find_neighbors(int x, int y) {
@@ -56,14 +67,14 @@ std::vector<std::tuple<int, int>> find_neighbors(int x, int y) {
   return neighbors;
 }
 
-std::tuple<int, int, int> move_to_minimum(int x, int y) {
+std::tuple<int, int, int> move_to_minimum(int x, int y, int runs) {
   auto neighbors = find_neighbors(x, y);
-  int best_performance = measure_performance(x, y);
+  int best_performance = measure_performance(x, y, runs);
   std::tuple<int, int> best_config = std::make_tuple(x, y);
 
   for (auto &neighbor : neighbors) {
     int nx = std::get<0>(neighbor), ny = std::get<1>(neighbor);
-    int perf = measure_performance(nx, ny);
+    int perf = measure_performance(nx, ny, runs);
     if (perf < best_performance) {
       best_performance = perf;
       best_config = neighbor;
@@ -74,15 +85,16 @@ std::tuple<int, int, int> move_to_minimum(int x, int y) {
                          best_performance);
 }
 
-std::tuple<int, int, int> coordinate_descent(int x, int y) {
+std::tuple<int, int, int> coordinate_descent(int x, int y, int runs) {
   std::cout << "Starting position: (" << x << ", " << y
-            << ") with performance: " << measure_performance(x, y) << " ms\n";
-  auto current_position = move_to_minimum(x, y);
+            << ") with performance: " << measure_performance(x, y, runs)
+            << " ms\n";
+  auto current_position = move_to_minimum(x, y, runs);
   int current_performance = std::get<2>(current_position);
 
   while (true) {
     auto next_position = move_to_minimum(std::get<0>(current_position),
-                                         std::get<1>(current_position));
+                                         std::get<1>(current_position), runs);
     int next_performance = std::get<2>(next_position);
     if (next_performance >= current_performance) {
       return current_position;
@@ -96,18 +108,21 @@ std::tuple<int, int, int> coordinate_descent(int x, int y) {
   }
 }
 
-std::tuple<int, int, int> exhaustive_search() {
+std::tuple<int, int, int> exhaustive_search(int runs) {
   int best_ts1 = 0, best_ts2 = 0, best_performance = INT_MAX;
 
   for (int ts1 : allowed_values) {
     for (int ts2 : allowed_values) {
-      int performance = measure_performance(ts1, ts2);
+      int performance = measure_performance(ts1, ts2, runs);
+
+      std::cout << ts1 << " " << ts2 << " " << performance << "\n";
       if (performance < best_performance) {
         best_performance = performance;
         best_ts1 = ts1;
         best_ts2 = ts2;
-        std::cout << "tile size (x, y): " << best_ts1 << " " << best_ts2 << " "
-                  << best_performance << "ms \n";
+        // std::cout << "tile size (x, y): " << best_ts1 << " " << best_ts2 << "
+        // "
+        //          << best_performance << "ms \n";
       }
     }
   }
@@ -115,12 +130,12 @@ std::tuple<int, int, int> exhaustive_search() {
   return std::make_tuple(best_ts1, best_ts2, best_performance);
 }
 
-std::tuple<int, int, int> combined_exhaustive_search() {
+std::tuple<int, int, int> combined_exhaustive_search(int runs) {
   int best_ts1 = 0, best_ts2 = 0, best_performance = INT_MAX;
 
   for (int ts1 : allowed_values) {
     for (int ts2 : allowed_values) {
-      int performance = measure_performance(ts1, ts2);
+      int performance = measure_performance(ts1, ts2, runs);
       if (performance < best_performance) {
         best_performance = performance;
         best_ts1 = ts1;
@@ -131,32 +146,38 @@ std::tuple<int, int, int> combined_exhaustive_search() {
     }
   }
 
-  return coordinate_descent(best_ts1, best_ts2);
+  return coordinate_descent(best_ts1, best_ts2, runs);
 }
 
-int main() {
+int main(int argc, char *argv[]) {
+  int runs = std::atoi(argv[1]);
+  if (runs <= 0) {
+    std::cerr << "Number of runs must be a positive integer.\n";
+    return 2;
+  }
+
   // int x = 512, y = 8; // seed
   int x = 1, y = 1;
 
   std::cout << "\nCoordinate Descent:"
             << "\n";
-  auto result = coordinate_descent(x, y);
+  auto result = coordinate_descent(x, y, runs);
   std::cout << "Converged to: (" << std::get<0>(result) << ", "
             << std::get<1>(result)
             << ") with performance: " << std::get<2>(result) << " ms\n";
 
   // std::cout << "\nExhaustive search:" << "\n";
-  // result = exhaustive_search();
+  // auto result = exhaustive_search(runs);
   // std::cout << "Converged to: (" << std::get<0>(result) << ", " <<
-  // std::get<1>(result) << ") with performance: " << std::get<2>(result) << "
-  // ms\n";
+  // std::get<1>(result) << ") with performance: " << std::get<2>(result) <<
+  // "ms\n";
 
-  std::cout << "\nCombined search:"
-            << "\n";
-  result = combined_exhaustive_search();
-  std::cout << "Converged to: (" << std::get<0>(result) << ", "
-            << std::get<1>(result)
-            << ") with performance: " << std::get<2>(result) << " ms\n";
+  // std::cout << "\nCombined search:"
+  //          << "\n";
+  // result = combined_exhaustive_search(runs);
+  // std::cout << "Converged to: (" << std::get<0>(result) << ", "
+  //           << std::get<1>(result)
+  //          << ") with performance: " << std::get<2>(result) << " ms\n";
 
   return 0;
 }
