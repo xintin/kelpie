@@ -1,6 +1,8 @@
 import os, sys, time, argparse, tvm
-from tvm import te, auto_scheduler, topi
-from tvm.topi.nn.utils import get_pad_tuple
+from tvm import te, topi
+
+from tvm import meta_schedule as ms
+from tvm.meta_schedule.runner.config import EvaluatorConfig
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.dirname(SCRIPT_DIR))
@@ -8,44 +10,63 @@ sys.path.append(os.path.dirname(SCRIPT_DIR))
 from tvm_bench.utils import *
 
 ## ------------------ Global ---------------------
-input_shape = (128, 168, 83, 83)
+input_shape = (1, 3, 224, 224)
+filter_shape = (64, 3, 3, 3)
+strides = (1, 1)
+padding = (1, 1)
+dilation = (1, 1)
+layout = "NCHW"
 dtype = "float32"
-
-# avg      128 168 83 83 1  2       VALID
-# pooltype N,  CI, H, W, K, strides padding
 
 
 ## ----------------- Benchmark -------------------
-@auto_scheduler.register_workload
-def ansor_pool2d(input_shape, dtype="float32"):
-    A = te.placeholder(shape=input_shape, name="A", dtype=dtype)
-    B = topi.nn.pool2d(
-        A, (1, 1), (2, 2), (1, 1), get_pad_tuple("VALID", (1, 1)), pool_type="avg"
+#@ms.register_workload
+def conv2d_ansor(input_shape, filter_shape):
+    A = te.placeholder(input_shape, name="A", dtype=dtype)
+    W = te.placeholder(filter_shape, name="W", dtype=dtype)
+    C = topi.nn.conv2d(
+        A, W, strides, padding, dilation, data_layout=layout, out_dtype=dtype
     )
-
-    return [A, B]
-
-
-## ---------------------------------------------
+    return [A, W, C]
 
 
 def generate_ansor_template(log_file, target, trials):
     task = tvm.auto_scheduler.SearchTask(
-        func=ansor_pool2d, args=(input_shape, "float32"), target=target
+        func=conv2d_ansor, args=(input_shape, filter_shape), target=target
     )
 
-    ## Set Parameters for Auto-Scheduler
-    tune_option = auto_scheduler.TuningOptions(
-        num_measure_trials=trials,  # change this to 20000 to achieve the best performance
-        runner=auto_scheduler.LocalRunner(
-            number=10,
-            repeat=3,
-            timeout=100,
-            enable_cpu_cache_flush=True if target == "llvm -mcpu=a64fx" else False,
-        ),
-        measure_callbacks=[auto_scheduler.RecordToFile(log_file)],
-        verbose=0,
-    )
+    start = time.time()
+    with ms.Profiler() as profiler:
+        database = ms.relay_integration.tune_relay(
+            mod=mod,
+            target=target,
+            params=params,
+            work_dir=logfile,
+            max_trials_global=trials,
+            num_trials_per_iter=64,
+            runner=ms.runner.LocalRunner(
+                evaluator_config=EvaluatorConfig(
+                    number=10,
+                    repeat=3,
+                    min_repeat_ms=100,
+                    enable_cpu_cache_flush=True if target == "llvm" else False,
+                )
+            ),
+            cost_model=ms.cost_model.XGBModel(
+                extractor=ms.feature_extractor.PerStoreFeature(),
+                adaptive_training=False,
+            ),
+            strategy=ms.search_strategy.EvolutionarySearch(),
+        )
+        lib = ms.relay_integration.compile_relay(
+            database=database,
+            mod=mod,
+            target=target,
+            params=params,
+        )
+    end = time.time()
+    print(f"Tuning Time (min): {(end-start)/60:.2f}")
+    print(profiler.table())
 
     start = time.time()
     # Run auto-tuning (search)
@@ -94,4 +115,4 @@ if __name__ == "__main__":
     if method == "ansor":
         generate_ansor_template(logfile, target, trials)
     elif method == "droplet":
-        build_template("pooling", logfile, target, trials)
+        build_template("conv2d", logfile, target, trials)

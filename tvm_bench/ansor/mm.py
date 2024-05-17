@@ -4,7 +4,7 @@ from tvm import te, auto_scheduler
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.dirname(SCRIPT_DIR))
 
-from src.utils import *
+from tvm_bench.utils import *
 
 ## ------------------ Global ---------------------
 N, L, M = 1000, 800, 700

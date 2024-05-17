@@ -1,29 +1,33 @@
 import os, sys, time, argparse, tvm
 from tvm import te, auto_scheduler, topi
-from tvm.topi.nn.utils import get_pad_tuple
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.dirname(SCRIPT_DIR))
 
-from tvm_bench.utils import *
+from src.utils import *
 
 ## ------------------ Global ---------------------
-input_shape = (128, 168, 83, 83)
+# 128 84 83 83 5  5  2       SAME
+# N   CI H  W  KH KW Strides Padding
+input_shape = (128, 84, 83, 83)
+filter_shape = (84, 1, 5, 5)
+strides = (1, 1)
+padding = (1, 1)
+dilation = (1, 1)
+layout = "NCHW"
 dtype = "float32"
-
-# avg      128 168 83 83 1  2       VALID
-# pooltype N,  CI, H, W, K, strides padding
 
 
 ## ----------------- Benchmark -------------------
 @auto_scheduler.register_workload
-def ansor_pool2d(input_shape, dtype="float32"):
-    A = te.placeholder(shape=input_shape, name="A", dtype=dtype)
-    B = topi.nn.pool2d(
-        A, (1, 1), (2, 2), (1, 1), get_pad_tuple("VALID", (1, 1)), pool_type="avg"
+def ansor_depthwise(input_shape, filter_shape, dtype="float32"):
+    A = te.placeholder(input_shape, name="A", dtype=dtype)
+    B = te.placeholder(filter_shape, name="B", dtype=dtype)
+    C = topi.nn.depthwise_conv2d_nhwc(
+        A, B, stride=strides, padding=padding, dilation=dilation, out_dtype=dtype
     )
 
-    return [A, B]
+    return [A, B, C]
 
 
 ## ---------------------------------------------
@@ -31,7 +35,7 @@ def ansor_pool2d(input_shape, dtype="float32"):
 
 def generate_ansor_template(log_file, target, trials):
     task = tvm.auto_scheduler.SearchTask(
-        func=ansor_pool2d, args=(input_shape, "float32"), target=target
+        func=ansor_depthwise, args=(input_shape, filter_shape, "float32"), target=target
     )
 
     ## Set Parameters for Auto-Scheduler
@@ -94,4 +98,4 @@ if __name__ == "__main__":
     if method == "ansor":
         generate_ansor_template(logfile, target, trials)
     elif method == "droplet":
-        build_template("pooling", logfile, target, trials)
+        build_template("depthwise", logfile, target, trials)

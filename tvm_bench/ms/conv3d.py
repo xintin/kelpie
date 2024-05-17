@@ -1,37 +1,36 @@
 import os, sys, time, argparse, tvm
 from tvm import te, auto_scheduler, topi
-from tvm.topi.nn.utils import get_pad_tuple
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.dirname(SCRIPT_DIR))
 
-from tvm_bench.utils import *
+from src.utils import *
 
 ## ------------------ Global ---------------------
-input_shape = (128, 168, 83, 83)
+input_shape = (1, 3, 3, 224, 224)
+filter_shape = (64, 3, 3, 3, 3)
+strides = (1, 1, 1)
+padding = (1, 1, 1)
+dilation = (1, 1, 1)
+groups = 1
+layout = "NCDHW"
 dtype = "float32"
-
-# avg      128 168 83 83 1  2       VALID
-# pooltype N,  CI, H, W, K, strides padding
 
 
 ## ----------------- Benchmark -------------------
 @auto_scheduler.register_workload
-def ansor_pool2d(input_shape, dtype="float32"):
-    A = te.placeholder(shape=input_shape, name="A", dtype=dtype)
-    B = topi.nn.pool2d(
-        A, (1, 1), (2, 2), (1, 1), get_pad_tuple("VALID", (1, 1)), pool_type="avg"
+def conv3d_ansor(input_shape, filter_shape):
+    A = te.placeholder(input_shape, name="A", dtype=dtype)
+    W = te.placeholder(filter_shape, name="W", dtype=dtype)
+    C = topi.nn.conv3d_ncdhw(
+        A, W, strides, padding, dilation, groups=groups, out_dtype=dtype
     )
-
-    return [A, B]
-
-
-## ---------------------------------------------
+    return [A, W, C]
 
 
 def generate_ansor_template(log_file, target, trials):
     task = tvm.auto_scheduler.SearchTask(
-        func=ansor_pool2d, args=(input_shape, "float32"), target=target
+        func=conv3d_ansor, args=(input_shape, filter_shape), target=target
     )
 
     ## Set Parameters for Auto-Scheduler
@@ -41,7 +40,7 @@ def generate_ansor_template(log_file, target, trials):
             number=10,
             repeat=3,
             timeout=100,
-            enable_cpu_cache_flush=True if target == "llvm -mcpu=a64fx" else False,
+            enable_cpu_cache_flush=True if target == "llvm" else False,
         ),
         measure_callbacks=[auto_scheduler.RecordToFile(log_file)],
         verbose=0,
@@ -67,7 +66,7 @@ if __name__ == "__main__":
         "-m", "--method", type=str, required=True, help="Options: ansor, droplet"
     )
     parser.add_argument(
-        "-a", "--arch", type=str, required=True, help="Options: x86, aarch64, cuda"
+        "-a", "--arch", type=str, required=True, help="Options: x86, arm, cuda"
     )
     parser.add_argument("-l", "--logfile", type=str, required=True)
     parser.add_argument("-t", "--trials", type=int, default=100)
@@ -84,7 +83,7 @@ if __name__ == "__main__":
     elif arch == "cuda":
         target = tvm.target.Target("cuda")
         dev = tvm.cuda()
-    elif arch == "aarch64":
+    elif arch == "arm":
         target = tvm.target.Target("llvm -mcpu=a64fx")
         dev = tvm.cpu()
     else:
@@ -94,4 +93,4 @@ if __name__ == "__main__":
     if method == "ansor":
         generate_ansor_template(logfile, target, trials)
     elif method == "droplet":
-        build_template("pooling", logfile, target, trials)
+        build_template("conv3d", logfile, target, trials)

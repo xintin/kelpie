@@ -1,27 +1,22 @@
 import os, sys, time, argparse, tvm
 from tvm import te, auto_scheduler, topi
-from tvm.topi.nn.utils import get_pad_tuple
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.dirname(SCRIPT_DIR))
 
-from tvm_bench.utils import *
+from src.utils import *
 
 ## ------------------ Global ---------------------
-input_shape = (128, 168, 83, 83)
+M = 4096
+N = 4096
 dtype = "float32"
-
-# avg      128 168 83 83 1  2       VALID
-# pooltype N,  CI, H, W, K, strides padding
 
 
 ## ----------------- Benchmark -------------------
 @auto_scheduler.register_workload
-def ansor_pool2d(input_shape, dtype="float32"):
-    A = te.placeholder(shape=input_shape, name="A", dtype=dtype)
-    B = topi.nn.pool2d(
-        A, (1, 1), (2, 2), (1, 1), get_pad_tuple("VALID", (1, 1)), pool_type="avg"
-    )
+def ansor_relu(M, N, dtype="float32"):
+    A = te.placeholder((M, N), name="A", dtype=dtype)
+    B = topi.nn.relu(A)
 
     return [A, B]
 
@@ -31,10 +26,11 @@ def ansor_pool2d(input_shape, dtype="float32"):
 
 def generate_ansor_template(log_file, target, trials):
     task = tvm.auto_scheduler.SearchTask(
-        func=ansor_pool2d, args=(input_shape, "float32"), target=target
+        func=ansor_relu, args=(M, N, "float32"), target=target
     )
 
     ## Set Parameters for Auto-Scheduler
+
     tune_option = auto_scheduler.TuningOptions(
         num_measure_trials=trials,  # change this to 20000 to achieve the best performance
         runner=auto_scheduler.LocalRunner(
@@ -61,7 +57,7 @@ def generate_ansor_template(log_file, target, trials):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        "python print_record_info.py -m 'ansor' -a x86 -l 'results/cpu_matmul.json' -i 3"
+        "python relu.py -m 'ansor' -a x86 -l 'results/cpu_matmul.json' -i 3"
     )
     parser.add_argument(
         "-m", "--method", type=str, required=True, help="Options: ansor, droplet"
@@ -94,4 +90,4 @@ if __name__ == "__main__":
     if method == "ansor":
         generate_ansor_template(logfile, target, trials)
     elif method == "droplet":
-        build_template("pooling", logfile, target, trials)
+        build_template("relu", logfile, target, trials)
