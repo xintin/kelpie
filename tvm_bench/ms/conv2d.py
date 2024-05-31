@@ -20,7 +20,7 @@ dtype = "float32"
 
 
 ## ----------------- Benchmark -------------------
-#@ms.register_workload
+# @ms.register_workload
 def conv2d_ansor(input_shape, filter_shape):
     A = te.placeholder(input_shape, name="A", dtype=dtype)
     W = te.placeholder(filter_shape, name="W", dtype=dtype)
@@ -31,16 +31,16 @@ def conv2d_ansor(input_shape, filter_shape):
 
 
 def generate_ansor_template(log_file, target, trials):
-    task = tvm.auto_scheduler.SearchTask(
-        func=conv2d_ansor, args=(input_shape, filter_shape), target=target
-    )
+    # task = tvm.meta_schedule.TaskScheduler(
+    #    func=conv2d_ansor, args=(input_shape, filter_shape), target=target
+    # )
 
     start = time.time()
     with ms.Profiler() as profiler:
         database = ms.relay_integration.tune_relay(
-            mod=mod,
+            mod=conv2d_ansor,
             target=target,
-            params=params,
+            params=(input_shape, filter_shape),
             work_dir=logfile,
             max_trials_global=trials,
             num_trials_per_iter=64,
@@ -69,9 +69,9 @@ def generate_ansor_template(log_file, target, trials):
     print(profiler.table())
 
     start = time.time()
-    # Run auto-tuning (search)
-    task.tune(tune_option)
-    end = time.time()
+    ## Run auto-tuning (search)
+    # task.tune(tune_option)
+    # end = time.time()
 
     time_avg, best_cfg = get_best_time(log_file)
 

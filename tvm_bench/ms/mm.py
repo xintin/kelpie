@@ -1,69 +1,102 @@
 import os, sys, time, argparse, tvm
-from tvm import te, auto_scheduler
+from tvm import te
+from tvm import meta_schedule as ms
+from tvm.meta_schedule.runner.config import EvaluatorConfig
+from tvm.script import tir as T
+
+num_threads = os.cpu_count()
+os.environ["TVM_NUM_THREADS"] = str(num_threads)
+os.environ["MKL_NUM_THREADS"] = str(num_threads * 2 // 3)
+os.environ["NUMEXPR_NUM_THREADS"] = str(num_threads * 2 // 3)
+os.environ["OMP_NUM_THREADS"] = str(num_threads * 2 // 3)
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.dirname(SCRIPT_DIR))
 
-from src.utils import *
+from utils import *
 
 ## ------------------ Global ---------------------
 N, L, M = 1000, 800, 700
 dtype = "float32"
 
 
+def te_matmul(A: te.Tensor, B: te.Tensor) -> te.Tensor:
+    assert A.shape[1] == B.shape[0]
+    n = A.shape[0]
+    m = B.shape[1]
+    k = te.reduce_axis((0, A.shape[1]), name="k")
+    return te.compute(
+        (n, m), lambda i, j: te.sum(A[i, k] * B[k, j], axis=k), name="matmul"
+    )
+
+
 ## ----------------- Benchmark -------------------
-@auto_scheduler.register_workload
-def ansor_mm(N, L, M, dtype="float32"):
+def mm_print(N, L, M, dtype="float32"):
     A = te.placeholder((N, L), name="A", dtype=dtype)
     B = te.placeholder((L, M), name="B", dtype=dtype)
+    C = te_matmul(A, B)
+    te.create_prim_func([A, B, C]).show()
 
-    k = te.reduce_axis((0, L), name="k")
-    C = te.compute((N, M), lambda i, j: te.sum(A[i, k] * B[k, j], axis=k), name="C")
 
-    return [A, B, C]
+@tvm.script.ir_module
+class Main:
+    @T.prim_func
+    def main(
+        A: T.Buffer((1000, 800), "float32"),
+        B: T.Buffer((800, 700), "float32"),
+        C: T.Buffer((1000, 700), "float32"),
+    ):
+        T.func_attr({"tir.noalias": T.bool(True)})
+        # with T.block("root"):
+        for i, j, k in T.grid(1000, 700, 800):
+            with T.block("C"):
+                v_i, v_j, v_k = T.axis.remap("SSR", [i, j, k])
+                T.reads(A[v_i, v_k], B[v_k, v_j])
+                T.writes(C[v_i, v_j])
+                with T.init():
+                    C[v_i, v_j] = T.float32(0)
+                C[v_i, v_j] = C[v_i, v_j] + A[v_i, v_k] * B[v_k, v_j]
 
 
 ## ---------------------------------------------
 
 
-def generate_ansor_template(log_file, target, trials):
-    task = tvm.auto_scheduler.SearchTask(
-        func=ansor_mm, args=(N, L, M, "float32"), target=target
-    )
-
-    ## Set Parameters for Auto-Scheduler
-    trial = trials
-    tune_option = auto_scheduler.TuningOptions(
-        num_measure_trials=trial,  # change this to 20000 to achieve the best performance
-        runner=auto_scheduler.LocalRunner(
-            number=10,
-            repeat=3,
-            timeout=100,
-            enable_cpu_cache_flush=True if target == "llvm" else False,
-        ),
-        measure_callbacks=[auto_scheduler.RecordToFile(log_file)],
-        verbose=0,
-    )
+def ms_execute(logfile, target, target_name, trials):
+    # only print
+    mm_print(N, L, M, dtype)
 
     start = time.time()
-    # Run auto-tuning (search)
-    task.tune(tune_option)
+    database = ms.tune_tir(
+        mod=Main,
+        target=target,
+        max_trials_global=trials,
+        num_trials_per_iter=64,
+        work_dir=logfile,
+        runner=ms.runner.LocalRunner(
+            evaluator_config=EvaluatorConfig(
+                number=10,
+                repeat=3,
+                min_repeat_ms=100,
+                enable_cpu_cache_flush=True if target_name == "llvm" else False,
+            )
+        ),
+        cost_model=ms.cost_model.XGBModel(
+            extractor=ms.feature_extractor.PerStoreFeature(),
+            adaptive_training=False,
+        ),
+        strategy=ms.search_strategy.EvolutionarySearch(),
+    )
     end = time.time()
 
-    time_avg, best_cfg = get_best_time(log_file)
+    best_time = get_ms_time(logfile + "/database_tuning_record.json")
 
-    print("Time spent:", time_avg)
-    print("Config:", best_cfg)
-    print("Time spent to search:", end - start)
+    print(f"Best time (ms): {np.mean(best_time):.10f}")
+    print(f"Best std  (ms): {np.std(best_time):.10f}")
+    print(f"Tuning Time (min): {(end-start)/60:.2f}")
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(
-        "python mm.py -m 'ansor' -a x86 -l 'results/cpu_matmul.json' -i 3"
-    )
-    parser.add_argument(
-        "-m", "--method", type=str, required=True, help="Options: ansor, droplet"
-    )
+    parser = argparse.ArgumentParser("python mm.py -a x86 -l 'results/ms/cpu_matmul'")
     parser.add_argument(
         "-a", "--arch", type=str, required=True, help="Options: x86, aarch64, cuda"
     )
@@ -71,25 +104,29 @@ if __name__ == "__main__":
     parser.add_argument("-t", "--trials", type=int, default=100)
     args = parser.parse_args()
 
-    method = args.method
     arch = args.arch
     logfile = args.logfile
     trials = args.trials
 
+    # clean the files
+    if os.path.isfile(logfile):
+        os.remove(logfile)
+
     if arch == "x86":
-        target = tvm.target.Target("llvm")
+        target_name = "llvm"
+        target = tvm.target.Target(f"llvm -num-cores {num_threads // 2}")
         dev = tvm.cpu()
     elif arch == "cuda":
-        target = tvm.target.Target("cuda")
+        target_name = "cuda"
+        target = tvm.target.Target(
+            "cuda -max_threads_per_block 1024 -max_shared_memory_per_block 49152"
+        )
         dev = tvm.cuda()
-    elif arch == "aarch64":
-        target = tvm.target.Target("llvm -mcpu=a64fx")
+    elif arch == "arm":
+        target = tvm.target.Target("llvm -mcpu=a64fx -num-cores 48")
         dev = tvm.cpu()
     else:
         print("Archtecture doesn't support.")
         exit(0)
 
-    if method == "ansor":
-        generate_ansor_template(logfile, target, trials)
-    elif method == "droplet":
-        build_template("mm", logfile, target, trials)
+    ms_execute(logfile, target, target_name, trials)
