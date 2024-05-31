@@ -5,7 +5,7 @@ from tvm.topi.nn.utils import get_pad_tuple
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.dirname(SCRIPT_DIR))
 
-from tvm_bench.utils import *
+from utils import *
 
 ## ------------------ Global ---------------------
 input_shape = (128, 168, 83, 83)

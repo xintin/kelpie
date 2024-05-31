@@ -63,7 +63,7 @@ class Main:
 
 def ms_execute(logfile, target, target_name, trials):
     # only print
-    mm_print(N, L, M, dtype)
+    # mm_print(N, L, M, dtype)
 
     start = time.time()
     database = ms.tune_tir(
@@ -101,7 +101,7 @@ if __name__ == "__main__":
         "-a", "--arch", type=str, required=True, help="Options: x86, aarch64, cuda"
     )
     parser.add_argument("-l", "--logfile", type=str, required=True)
-    parser.add_argument("-t", "--trials", type=int, default=100)
+    parser.add_argument("-t", "--trials", type=int, default=1000)
     args = parser.parse_args()
 
     arch = args.arch
