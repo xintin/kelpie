@@ -9,13 +9,16 @@
 
 #define M 1000
 #define N 1000
-#define F 3 
+#define F 3 // Filter size
 
-std::vector<std::vector<int>> A(M, std::vector<int>(N, -1)); 
-std::vector<std::vector<int>> B(F, std::vector<int>(F, -1)); 
-std::vector<std::vector<int>>
-    C(M - F + 1,
-      std::vector<int>(N - F + 1, 0)); 
+int A[M][N]; // Input matrix
+int B[F][F]; // Filter matrix
+int C[M - F + 1][N - F + 1]; // Output matrix for 'valid' convolution
+
+std::vector<std::vector<int>> A(M, std::vector<int>(N, -1)); // Input matrix
+std::vector<std::vector<int>> B(F, std::vector<int>(F, -1)); // Filter matrix
+std::vector<std::vector<int>> C(M - F + 1, std::vector<int>(N - F + 1, 0)); // Output matrix for 'valid' convolution
+
 
 const std::vector<int> allowed_values = {1, 2, 4, 8, 16, 32, 64, 128, 256, 512};
 
@@ -31,19 +34,19 @@ inline int max(int x, int y) { return std::max(x, y); }
 inline int min(int x, int y) { return std::min(x, y); }
 
 void initialize_matrices() {
-  // Initialize input matrix A with some values
-  for (int i = 0; i < M; ++i) {
-    for (int j = 0; j < N; ++j) {
-      A[i][j] = static_cast<int>(i + j); 
+    // Initialize input matrix A with some values
+    for (int i = 0; i < M; ++i) {
+        for (int j = 0; j < N; ++j) {
+            A[i][j] = static_cast<int>(i + j); // Example initialization
+        }
     }
-  }
 
-  // Initialize filter matrix B with some values
-  for (int i = 0; i < F; ++i) {
-    for (int j = 0; j < F; ++j) {
-      B[i][j] = static_cast<int>(i - j);
+    // Initialize filter matrix B with some values
+    for (int i = 0; i < F; ++i) {
+        for (int j = 0; j < F; ++j) {
+            B[i][j] = static_cast<int>(i - j); // Example initialization
+        }
     }
-  }
 }
 
 void computationKernel2(std::vector<std::vector<int>> &A,
@@ -185,13 +188,11 @@ int main(int argc, char *argv[]) {
             << std::get<1>(result)
             << ") with performance: " << std::get<2>(result) << " ms\n";
 
-
-  std::cout << "\nExhaustive search:"
-            << "\n";
+  std::cout << "\nExhaustive search:" << "\n";
   result = exhaustive_search(runs);
-  std::cout << "Converged to: (" << std::get<0>(result) << ", "
-            << std::get<1>(result)
-            << ") with performance: " << std::get<2>(result) << "ms\n";
+  std::cout << "Converged to: (" << std::get<0>(result) << ", " <<
+  std::get<1>(result) << ") with performance: " << std::get<2>(result) <<
+  "ms\n";
 
   // std::cout << "\nCombined search:"
   //          << "\n";
@@ -204,46 +205,39 @@ int main(int argc, char *argv[]) {
 }
 
 void computationKernel2(std::vector<std::vector<int>> &A,
-                        std::vector<std::vector<int>> &B, int tile_size_t2,
-                        int tile_size_t3) {
-  int t2, t3, t4, t5, t6, t7, t8;
-  int lbv, ubv;
+                        std::vector<std::vector<int>> &B, int tile_size_t2, int tile_size_t3) {
+    int t1, t2, t3, t4, t5, t6, t7, t8;
+    int lbv, ubv;
 
-  if ((F <= N) && (M >= F)) {
-    for (t2 = 0; t2 <= (M - F) / tile_size_t2; t2++) {
-      for (t3 = 0; t3 <= (N - F) / tile_size_t3; t3++) {
-        for (t4 = tile_size_t2 * t2;
-             t4 <= min(M - F, tile_size_t2 * t2 + tile_size_t2 - 1); t4++) {
-          lbv = tile_size_t3 * t3;
-          ubv = min(N - F, tile_size_t3 * t3 + tile_size_t3 - 1);
+    if ((F <= N) && (M >= F)) {
+        for (t2 = 0; t2 <= (M - F) / tile_size_t2; t2++) {
+            for (t3 = 0; t3 <= (N - F) / tile_size_t3; t3++) {
+                for (t4 = tile_size_t2 * t2; t4 <= min(M - F, tile_size_t2 * t2 + tile_size_t2 - 1); t4++) {
+                    lbv = tile_size_t3 * t3;
+                    ubv = min(N - F, tile_size_t3 * t3 + tile_size_t3 - 1);
 
-          for (t5 = lbv; t5 <= ubv; t5++) {
-            C[t4][t5] = 0;
-          }
-        }
-      }
-    }
-    if (F >= 1) {
-      for (t2 = 0; t2 <= (M - F) / tile_size_t2; t2++) {
-        for (t3 = 0; t3 <= (N - F) / tile_size_t3; t3++) {
-          for (t4 = 0; t4 <= (F - 1) / tile_size_t2; t4++) {
-            for (t5 = tile_size_t2 * t2;
-                 t5 <= min(M - F, tile_size_t2 * t2 + tile_size_t2 - 1); t5++) {
-              for (t6 = tile_size_t3 * t3;
-                   t6 <= min(N - F, tile_size_t3 * t3 + tile_size_t3 - 1);
-                   t6++) {
-                for (t7 = tile_size_t2 * t4;
-                     t7 <= min(F - 1, tile_size_t2 * t4 + tile_size_t2 - 1);
-                     t7++) {
-                  for (t8 = 0; t8 <= F - 1; t8++) {
-                    C[t5][t6] += A[t5 + t7][t6 + t8] * B[t7][t8];
-                  }
+                    for (t5 = lbv; t5 <= ubv; t5++) {
+                        C[t4][t5] = 0;
+                    }
                 }
-              }
             }
-          }
         }
-      }
+        if (F >= 1) {
+            for (t2 = 0; t2 <= (M - F) / tile_size_t2; t2++) {
+                for (t3 = 0; t3 <= (N - F) / tile_size_t3; t3++) {
+                    for (t4 = 0; t4 <= (F - 1) / tile_size_t2; t4++) {
+                        for (t5 = tile_size_t2 * t2; t5 <= min(M - F, tile_size_t2 * t2 + tile_size_t2 - 1); t5++) {
+                            for (t6 = tile_size_t3 * t3; t6 <= min(N - F, tile_size_t3 * t3 + tile_size_t3 - 1); t6++) {
+                                for (t7 = tile_size_t2 * t4; t7 <= min(F - 1, tile_size_t2 * t4 + tile_size_t2 - 1); t7++) {
+                                    for (t8 = 0; t8 <= F - 1; t8++) {
+                                        C[t5][t6] += A[t5 + t7][t6 + t8] * B[t7][t8];
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
-  }
 }

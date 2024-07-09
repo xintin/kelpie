@@ -16,6 +16,8 @@
 #define PADDING 1
 #define DILATION 1
 
+using namespace std;
+
 std::vector<std::vector<std::vector<std::vector<float>>>>
     input(BATCH_SIZE,
           std::vector<std::vector<std::vector<float>>>(
@@ -51,8 +53,7 @@ inline int floord(int n, int d) {
   return static_cast<int>(
       std::floor(static_cast<double>(n) / static_cast<double>(d)));
 }
-inline int max(int x, int y) { return std::max(x, y); }
-inline int min(int x, int y) { return std::min(x, y); }
+
 
 void depthwise_conv2d_tiled(
     const std::vector<std::vector<std::vector<std::vector<float>>>> &input,
@@ -299,12 +300,11 @@ int main(int argc, char *argv[]) {
             << std::get<3>(result)
             << ") with performance: " << std::get<4>(result) << " ms\n";
 
-  // std::cout << "\nExhaustive search:\n";
-  // result = exhaustive_search(runs);
-  // std::cout << "Converged to: (" << std::get<0>(result) << ", " <<
-  // std::get<1>(result) << ", " << std::get<2>(result) << ", " <<
-  // std::get<3>(result) << ") with performance: " << std::get<4>(result) << "
-  // ms\n";
+  std::cout << "\nExhaustive search:\n";
+  result = exhaustive_search(runs);
+  std::cout << "Converged to: (" << std::get<0>(result) << ", " <<
+  std::get<1>(result) << ", " << std::get<2>(result) << ", " <<
+  std::get<3>(result) << ") with performance: " << std::get<4>(result) << "ms\n";
 
   return 0;
 }
