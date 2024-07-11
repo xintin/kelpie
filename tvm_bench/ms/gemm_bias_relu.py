@@ -1,6 +1,5 @@
 import os, sys, time, argparse, tvm
 from tvm import te, topi
-from tvm.topi.nn.utils import get_pad_tuple
 from tvm import meta_schedule as ms
 from tvm.meta_schedule.runner.config import EvaluatorConfig
 from tvm.script import tir as T
@@ -17,62 +16,61 @@ sys.path.append(os.path.dirname(SCRIPT_DIR))
 from utils import *
 
 ## ------------------ Global ---------------------
-input_shape = (128, 168, 83, 83)
+N, L, M = 1024, 1024, 1024
 dtype = "float32"
 
-# avg      128 168 83 83 1  2       VALID
-# pooltype N,  CI, H, W, K, strides padding
 
+def gemm_bias_relu(A: te.Tensor, B: te.Tensor, bias: te.tensor) -> te.Tensor:
+    C = topi.matmul(A, B)
+    D = topi.add(C, bias)
+    E = topi.nn.relu(D)
+    return E
 
 ## ----------------- Benchmark -------------------
-def print_pooling(input_shape, dtype="float32"):
-    A = te.placeholder(shape=input_shape, name="A", dtype=dtype)
-    B = topi.nn.pool2d(
-        A, (1, 1), (2, 2), (1, 1), get_pad_tuple("VALID", (1, 1)), pool_type="avg"
-    )
-    te.create_prim_func([A, B]).show()
-
+def mm_print(N, L, M, dtype="float32"):
+    A = te.placeholder((N, L), name="A", dtype=dtype)
+    B = te.placeholder((L, M), name="B", dtype=dtype)
+    bias = te.placeholder((N, M), name="bias", dtype=dtype)
+    C = gemm_bias_relu(A, B, bias)
+    te.create_prim_func([A, B, bias, C]).show()
 
 @tvm.script.ir_module
 class Main:
     @T.prim_func
-    def main(
-        A: T.Buffer((128, 168, 83, 83), "float32"),
-        pool_avg: T.Buffer((128, 168, 42, 42), "float32"),
-    ):
+    def main(A: T.Buffer((1024, 1024), "float32"), B: T.Buffer((1024, 1024), "float32"), bias: T.Buffer((1024, 1024), "float32"), compute: T.Buffer((1024, 1024), "float32")):
         T.func_attr({"tir.noalias": T.bool(True)})
         # with T.block("root"):
-        pool_sum = T.alloc_buffer((128, 168, 42, 42))
-        for ax0, ax1, ax2, ax3, rv0, rv1 in T.grid(128, 168, 42, 42, 1, 1):
-            with T.block("pool_sum"):
-                v_ax0, v_ax1, v_ax2, v_ax3, v_rv0, v_rv1 = T.axis.remap(
-                    "SSSSRR", [ax0, ax1, ax2, ax3, rv0, rv1]
-                )
-                T.reads(A[v_ax0, v_ax1, v_ax2 * 2 + v_rv0, v_ax3 * 2 + v_rv1])
-                T.writes(pool_sum[v_ax0, v_ax1, v_ax2, v_ax3])
+        T_matmul = T.alloc_buffer((1024, 1024))
+        T_add = T.alloc_buffer((1024, 1024))
+        for ax0, ax1, k in T.grid(1024, 1024, 1024):
+            with T.block("T_matmul"):
+                v_ax0, v_ax1, v_k = T.axis.remap("SSR", [ax0, ax1, k])
+                T.reads(A[v_ax0, v_k], B[v_k, v_ax1])
+                T.writes(T_matmul[v_ax0, v_ax1])
                 with T.init():
-                    pool_sum[v_ax0, v_ax1, v_ax2, v_ax3] = T.float32(0)
-                pool_sum[v_ax0, v_ax1, v_ax2, v_ax3] = (
-                    pool_sum[v_ax0, v_ax1, v_ax2, v_ax3]
-                    + A[v_ax0, v_ax1, v_ax2 * 2 + v_rv0, v_ax3 * 2 + v_rv1]
-                )
-        for ax0, ax1, ax2, ax3 in T.grid(128, 168, 42, 42):
-            with T.block("pool_avg"):
-                v_ax0, v_ax1, v_ax2, v_ax3 = T.axis.remap("SSSS", [ax0, ax1, ax2, ax3])
-                T.reads(pool_sum[v_ax0, v_ax1, v_ax2, v_ax3])
-                T.writes(pool_avg[v_ax0, v_ax1, v_ax2, v_ax3])
-                T.block_attr({"schedule_rule": "meta_schedule.pool_avg"})
-                pool_avg[v_ax0, v_ax1, v_ax2, v_ax3] = pool_sum[
-                    v_ax0, v_ax1, v_ax2, v_ax3
-                ] / T.Cast(
-                    "float32",
-                    (T.min(0, 41 - v_ax2) * 2 + 1) * (T.min(0, 41 - v_ax3) * 2 + 1),
-                )
+                    T_matmul[v_ax0, v_ax1] = T.float32(0)
+                T_matmul[v_ax0, v_ax1] = T_matmul[v_ax0, v_ax1] + A[v_ax0, v_k] * B[v_k, v_ax1]
+        for ax0, ax1 in T.grid(1024, 1024):
+            with T.block("T_add"):
+                v_ax0, v_ax1 = T.axis.remap("SS", [ax0, ax1])
+                T.reads(T_matmul[v_ax0, v_ax1], bias[v_ax0, v_ax1])
+                T.writes(T_add[v_ax0, v_ax1])
+                T_add[v_ax0, v_ax1] = T_matmul[v_ax0, v_ax1] + bias[v_ax0, v_ax1]
+        for i0, i1 in T.grid(1024, 1024):
+            with T.block("compute"):
+                v_i0, v_i1 = T.axis.remap("SS", [i0, i1])
+                T.reads(T_add[v_i0, v_i1])
+                T.writes(compute[v_i0, v_i1])
+                compute[v_i0, v_i1] = T.max(T_add[v_i0, v_i1], T.float32(0))
+
+
+## ---------------------------------------------
 
 
 def ms_execute(logfile, target, target_name, trials):
-    # only print, just to collect the IR module
-    # print_pooling(input_shape)
+    # only print
+    #mm_print(N, L, M, dtype)
+    #return
 
     start = time.time()
     database = ms.tune_tir(

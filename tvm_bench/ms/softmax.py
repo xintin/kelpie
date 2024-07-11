@@ -16,37 +16,66 @@ sys.path.append(os.path.dirname(SCRIPT_DIR))
 from utils import *
 
 ## ------------------ Global ---------------------
-M = 4096
-N = 4096
+N = 1000
 dtype = "float32"
 
+def softmax(A: te.Tensor) -> te.Tensor:
+    C = topi.nn.softmax(A)
+    return C
 
 ## ----------------- Benchmark -------------------
-def print_relu(M, N, dtype="float32"):
-    A = te.placeholder((M, N), name="A", dtype=dtype)
-    B = topi.nn.relu(A)
+def print_output(N, dtype="float32"):
+    A = te.placeholder((N,1), name="A", dtype=dtype)
+    B = softmax(A)
     te.create_prim_func([A, B]).show()
-
 
 @tvm.script.ir_module
 class Main:
     @T.prim_func
-    def main(
-        A: T.Buffer((4096, 4096), "float32"), compute: T.Buffer((4096, 4096), "float32")
-    ):
+    def main(A: T.Buffer((1000, 1), "float32"), T_softmax_norm: T.Buffer((1000, 1), "float32")):
         T.func_attr({"tir.noalias": T.bool(True)})
         # with T.block("root"):
-        for i0, i1 in T.grid(4096, 4096):
-            with T.block("compute"):
+        T_softmax_maxelem = T.alloc_buffer((1000,))
+        T_softmax_exp = T.alloc_buffer((1000, 1))
+        T_softmax_expsum = T.alloc_buffer((1000,))
+        for i0, k in T.grid(1000, 1):
+            with T.block("T_softmax_maxelem"):
+                v_i0, v_k = T.axis.remap("SR", [i0, k])
+                T.reads(A[v_i0, v_k])
+                T.writes(T_softmax_maxelem[v_i0])
+                with T.init():
+                    T_softmax_maxelem[v_i0] = T.float32(-3.4028234663852886e+38)
+                T_softmax_maxelem[v_i0] = T.max(T_softmax_maxelem[v_i0], A[v_i0, v_k])
+        for i0, i1 in T.grid(1000, 1):
+            with T.block("T_softmax_exp"):
                 v_i0, v_i1 = T.axis.remap("SS", [i0, i1])
-                T.reads(A[v_i0, v_i1])
-                T.writes(compute[v_i0, v_i1])
-                compute[v_i0, v_i1] = T.max(A[v_i0, v_i1], T.float32(0))
+                T.reads(A[v_i0, v_i1], T_softmax_maxelem[v_i0])
+                T.writes(T_softmax_exp[v_i0, v_i1])
+                T_softmax_exp[v_i0, v_i1] = T.exp(A[v_i0, v_i1] - T_softmax_maxelem[v_i0])
+        for i0, k in T.grid(1000, 1):
+            with T.block("T_softmax_expsum"):
+                v_i0, v_k = T.axis.remap("SR", [i0, k])
+                T.reads(T_softmax_exp[v_i0, v_k])
+                T.writes(T_softmax_expsum[v_i0])
+                with T.init():
+                    T_softmax_expsum[v_i0] = T.float32(0)
+                T_softmax_expsum[v_i0] = T_softmax_expsum[v_i0] + T_softmax_exp[v_i0, v_k]
+        for i0, i1 in T.grid(1000, 1):
+            with T.block("T_softmax_norm"):
+                v_i0, v_i1 = T.axis.remap("SS", [i0, i1])
+                T.reads(T_softmax_exp[v_i0, v_i1], T_softmax_expsum[v_i0])
+                T.writes(T_softmax_norm[v_i0, v_i1])
+                T.block_attr({"axis": 1})
+                T_softmax_norm[v_i0, v_i1] = T_softmax_exp[v_i0, v_i1] / T_softmax_expsum[v_i0]
+
+
+## ---------------------------------------------
 
 
 def ms_execute(logfile, target, target_name, trials):
-    # only print, just to collect the IR module
-    # print_relu(M, N)
+    # only print
+    #print_output(N, dtype)
+    #return
 
     start = time.time()
     database = ms.tune_tir(

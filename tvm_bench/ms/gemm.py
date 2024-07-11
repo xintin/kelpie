@@ -16,78 +16,43 @@ sys.path.append(os.path.dirname(SCRIPT_DIR))
 from utils import *
 
 ## ------------------ Global ---------------------
-input_shape = (1, 3, 3, 224, 224)
-filter_shape = (64, 3, 3, 3, 3)
-strides = (1, 1, 1)
-padding = (1, 1, 1)
-dilation = (1, 1, 1)
-groups = 1
-layout = "NCDHW"
+N, L, M = 1024, 1024, 1024
 dtype = "float32"
 
+def gemm(A: te.Tensor, B: te.Tensor) -> te.Tensor:
+    C = topi.matmul(A, B)
+    return C
 
 ## ----------------- Benchmark -------------------
-def print_conv3d(input_shape, filter_shape, dtype="float32"):
-    A = te.placeholder(input_shape, name="A", dtype=dtype)
-    W = te.placeholder(filter_shape, name="W", dtype=dtype)
-    C = topi.nn.conv3d_ncdhw(
-        A, W, strides, padding, dilation, groups=groups, out_dtype=dtype
-    )
-    te.create_prim_func([A, W, C]).show()
-
+def mm_print(N, L, M, dtype="float32"):
+    A = te.placeholder((N, L), name="A", dtype=dtype)
+    B = te.placeholder((L, M), name="B", dtype=dtype)
+    C = gemm(A, B)
+    te.create_prim_func([A, B, C]).show()
 
 @tvm.script.ir_module
 class Main:
     @T.prim_func
-    def main(
-        A: T.Buffer((1, 3, 3, 224, 224), "float32"),
-        W: T.Buffer((64, 3, 3, 3, 3), "float32"),
-        conv3d_ncdhw: T.Buffer((1, 64, 3, 224, 224), "float32"),
-    ):
+    def main(A: T.Buffer((1024, 1024), "float32"), B: T.Buffer((1024, 1024), "float32"), T_matmul: T.Buffer((1024, 1024), "float32")):
         T.func_attr({"tir.noalias": T.bool(True)})
         # with T.block("root"):
-        pad_temp = T.alloc_buffer((1, 3, 5, 226, 226))
-        for i0, i1, i2, i3, i4 in T.grid(1, 3, 5, 226, 226):
-            with T.block("pad_temp"):
-                v_i0, v_i1, v_i2, v_i3, v_i4 = T.axis.remap(
-                    "SSSSS", [i0, i1, i2, i3, i4]
-                )
-                T.reads(A[v_i0, v_i1, v_i2 - 1, v_i3 - 1, v_i4 - 1])
-                T.writes(pad_temp[v_i0, v_i1, v_i2, v_i3, v_i4])
-                pad_temp[v_i0, v_i1, v_i2, v_i3, v_i4] = T.if_then_else(
-                    1 <= v_i2
-                    and v_i2 < 4
-                    and 1 <= v_i3
-                    and v_i3 < 225
-                    and 1 <= v_i4
-                    and v_i4 < 225,
-                    A[v_i0, v_i1, v_i2 - 1, v_i3 - 1, v_i4 - 1],
-                    T.float32(0),
-                )
-        for nn, ff, yy, xx, zz, rc, ry, rx, rz in T.grid(
-            1, 64, 3, 224, 224, 3, 3, 3, 3
-        ):
-            with T.block("conv3d_ncdhw"):
-                v_nn, v_ff, v_yy, v_xx, v_zz, v_rc, v_ry, v_rx, v_rz = T.axis.remap(
-                    "SSSSSRRRR", [nn, ff, yy, xx, zz, rc, ry, rx, rz]
-                )
-                T.reads(
-                    pad_temp[v_nn, v_rc, v_yy + v_ry, v_xx + v_rx, v_zz + v_rz],
-                    W[v_ff, v_rc, v_ry, v_rx, v_rz],
-                )
-                T.writes(conv3d_ncdhw[v_nn, v_ff, v_yy, v_xx, v_zz])
+        for ax0, ax1, k in T.grid(1024, 1024, 1024):
+            with T.block("T_matmul"):
+                v_ax0, v_ax1, v_k = T.axis.remap("SSR", [ax0, ax1, k])
+                T.reads(A[v_ax0, v_k], B[v_k, v_ax1])
+                T.writes(T_matmul[v_ax0, v_ax1])
                 with T.init():
-                    conv3d_ncdhw[v_nn, v_ff, v_yy, v_xx, v_zz] = T.float32(0)
-                conv3d_ncdhw[v_nn, v_ff, v_yy, v_xx, v_zz] = (
-                    conv3d_ncdhw[v_nn, v_ff, v_yy, v_xx, v_zz]
-                    + pad_temp[v_nn, v_rc, v_yy + v_ry, v_xx + v_rx, v_zz + v_rz]
-                    * W[v_ff, v_rc, v_ry, v_rx, v_rz]
-                )
+                    T_matmul[v_ax0, v_ax1] = T.float32(0)
+                T_matmul[v_ax0, v_ax1] = T_matmul[v_ax0, v_ax1] + A[v_ax0, v_k] * B[v_k, v_ax1]
+
+
+## ---------------------------------------------
 
 
 def ms_execute(logfile, target, target_name, trials):
-    # only print, just to collect the IR module
-    print_conv3d(input_shape, filter_shape, dtype)
+    # only print
+    #mm_print(N, L, M, dtype)
+    #return
 
     start = time.time()
     database = ms.tune_tir(

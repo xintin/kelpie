@@ -1,5 +1,6 @@
 import os, sys, time, argparse, tvm
-from tvm import te
+from tvm import te, topi
+from tvm.topi.nn.utils import get_pad_tuple
 from tvm import meta_schedule as ms
 from tvm.meta_schedule.runner.config import EvaluatorConfig
 from tvm.script import tir as T
@@ -16,54 +17,43 @@ sys.path.append(os.path.dirname(SCRIPT_DIR))
 from utils import *
 
 ## ------------------ Global ---------------------
-N, L, M = 1000, 800, 700
+input_shape = (128, 168, 83, 83)
 dtype = "float32"
 
-
-def te_matmul(A: te.Tensor, B: te.Tensor) -> te.Tensor:
-    assert A.shape[1] == B.shape[0]
-    n = A.shape[0]
-    m = B.shape[1]
-    k = te.reduce_axis((0, A.shape[1]), name="k")
-    return te.compute(
-        (n, m), lambda i, j: te.sum(A[i, k] * B[k, j], axis=k), name="matmul"
-    )
+# avg      128 168 83 83 1  2       VALID
+# pooltype N,  CI, H, W, K, strides padding
 
 
 ## ----------------- Benchmark -------------------
-def mm_print(N, L, M, dtype="float32"):
-    A = te.placeholder((N, L), name="A", dtype=dtype)
-    B = te.placeholder((L, M), name="B", dtype=dtype)
-    C = te_matmul(A, B)
-    te.create_prim_func([A, B, C]).show()
+def print_pooling(input_shape, dtype="float32"):
+    A = te.placeholder(shape=input_shape, name="A", dtype=dtype)
+    B = topi.nn.pool2d(
+        A, (1, 1), (2, 2), (1, 1), get_pad_tuple("VALID", (1, 1)), pool_type="max"
+    )
+    te.create_prim_func([A, B]).show()
 
 
 @tvm.script.ir_module
 class Main:
     @T.prim_func
-    def main(
-        A: T.Buffer((1000, 800), "float32"),
-        B: T.Buffer((800, 700), "float32"),
-        C: T.Buffer((1000, 700), "float32"),
-    ):
+    def main(A: T.Buffer((128, 168, 83, 83), "float32"), pool_max: T.Buffer((128, 168, 42, 42), "float32")):
         T.func_attr({"tir.noalias": T.bool(True)})
         # with T.block("root"):
-        for i, j, k in T.grid(1000, 700, 800):
-            with T.block("C"):
-                v_i, v_j, v_k = T.axis.remap("SSR", [i, j, k])
-                T.reads(A[v_i, v_k], B[v_k, v_j])
-                T.writes(C[v_i, v_j])
+        for ax0, ax1, ax2, ax3, rv0, rv1 in T.grid(128, 168, 42, 42, 1, 1):
+            with T.block("pool_max"):
+                v_ax0, v_ax1, v_ax2, v_ax3, v_rv0, v_rv1 = T.axis.remap("SSSSRR", [ax0, ax1, ax2, ax3, rv0, rv1])
+                T.reads(A[v_ax0, v_ax1, v_ax2 * 2 + v_rv0, v_ax3 * 2 + v_rv1])
+                T.writes(pool_max[v_ax0, v_ax1, v_ax2, v_ax3])
+                T.block_attr({"schedule_rule": "meta_schedule.pool_max"})
                 with T.init():
-                    C[v_i, v_j] = T.float32(0)
-                C[v_i, v_j] = C[v_i, v_j] + A[v_i, v_k] * B[v_k, v_j]
-
-
-## ---------------------------------------------
+                    pool_max[v_ax0, v_ax1, v_ax2, v_ax3] = T.float32(-3.4028234663852886e+38)
+                pool_max[v_ax0, v_ax1, v_ax2, v_ax3] = T.max(pool_max[v_ax0, v_ax1, v_ax2, v_ax3], A[v_ax0, v_ax1, v_ax2 * 2 + v_rv0, v_ax3 * 2 + v_rv1])
 
 
 def ms_execute(logfile, target, target_name, trials):
-    # only print
-    # mm_print(N, L, M, dtype)
+    # only print, just to collect the IR module
+    #print_pooling(input_shape)
+    #return
 
     start = time.time()
     database = ms.tune_tir(
