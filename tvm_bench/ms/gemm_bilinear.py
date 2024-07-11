@@ -17,14 +17,15 @@ from utils import *
 
 ## ------------------ Global ---------------------
 N, L, M = 1024, 1024, 1024
-alpha = 1.0 
+alpha = 1.00000000001 
 beta = 0.4
 dtype = "float32"
 
 
 def gemm_bilinear(A: te.Tensor, B: te.Tensor) -> te.Tensor:
-    C = topi.matmul(A, B)
-    D = te.compute((N,M), lambda i, j: C[i, j] * beta)
+    k = te.reduce_axis((0, L), name="k")
+    C = te.compute((N, M), lambda i, j: te.sum(alpha * A[i, k] * B[k, j], axis=k), name="C")
+    D = te.compute((N,M), lambda i, j: te.add(C[i, j], C[i, j] * beta))
     return D
 
 ## ----------------- Benchmark -------------------
@@ -40,21 +41,21 @@ class Main:
     def main(A: T.Buffer((1024, 1024), "float32"), B: T.Buffer((1024, 1024), "float32"), compute: T.Buffer((1024, 1024), "float32")):
         T.func_attr({"tir.noalias": T.bool(True)})
         # with T.block("root"):
-        T_matmul = T.alloc_buffer((1024, 1024))
-        for ax0, ax1, k in T.grid(1024, 1024, 1024):
-            with T.block("T_matmul"):
-                v_ax0, v_ax1, v_k = T.axis.remap("SSR", [ax0, ax1, k])
-                T.reads(A[v_ax0, v_k], B[v_k, v_ax1])
-                T.writes(T_matmul[v_ax0, v_ax1])
+        C = T.alloc_buffer((1024, 1024))
+        for i, j, k in T.grid(1024, 1024, 1024):
+            with T.block("C"):
+                v_i, v_j, v_k = T.axis.remap("SSR", [i, j, k])
+                T.reads(A[v_i, v_k], B[v_k, v_j])
+                T.writes(C[v_i, v_j])
                 with T.init():
-                    T_matmul[v_ax0, v_ax1] = T.float32(0)
-                T_matmul[v_ax0, v_ax1] = T_matmul[v_ax0, v_ax1] + A[v_ax0, v_k] * B[v_k, v_ax1]
+                    C[v_i, v_j] = T.float32(0)
+                C[v_i, v_j] = C[v_i, v_j] + T.float32(1.0) * A[v_i, v_k] * B[v_k, v_j]
         for i, j in T.grid(1024, 1024):
             with T.block("compute"):
                 v_i, v_j = T.axis.remap("SS", [i, j])
-                T.reads(T_matmul[v_i, v_j])
+                T.reads(C[v_i, v_j])
                 T.writes(compute[v_i, v_j])
-                compute[v_i, v_j] = T_matmul[v_i, v_j] * T.float32(0.40000000000000002)
+                compute[v_i, v_j] = C[v_i, v_j] + C[v_i, v_j] * T.float32(0.4)
 
 
 ## ---------------------------------------------
@@ -62,8 +63,8 @@ class Main:
 
 def ms_execute(logfile, target, target_name, trials):
     # only print
-    mm_print(N, L, M, dtype)
-    return
+    #mm_print(N, L, M, dtype)
+    #return
 
     start = time.time()
     database = ms.tune_tir(
