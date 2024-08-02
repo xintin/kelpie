@@ -58,7 +58,7 @@ int measure_performance(int ts1, int ts2, int runs) {
     auto stop = std::chrono::high_resolution_clock::now();
 
     total_duration +=
-        std::chrono::duration_cast<std::chrono::milliseconds>(stop - start)
+        std::chrono::duration_cast<std::chrono::microseconds>(stop - start)
             .count();
   }
 
@@ -168,6 +168,19 @@ std::tuple<int, int, int> combined_exhaustive_search(int runs) {
   return coordinate_descent(best_ts1, best_ts2, runs);
 }
 
+void conv2d() {
+  for (int i = 0; i <= M - F; ++i) {
+    for (int j = 0; j <= N - F; ++j) {
+      C[i][j] = 0; 
+      for (int ki = 0; ki < F; ++ki) {
+        for (int kj = 0; kj < F; ++kj) {
+          C[i][j] += A[i + ki][j + kj] * B[ki][kj];
+        }
+      }
+    }
+  }
+}
+
 int main(int argc, char *argv[]) {
   int runs = std::atoi(argv[1]);
   if (runs <= 0) {
@@ -176,19 +189,37 @@ int main(int argc, char *argv[]) {
   }
 
   initialize_matrices();
+  std::cout << "\nNaive conv2d"
+            << "\n";
+  auto start_timer = std::chrono::high_resolution_clock::now();
+  conv2d();
+  auto end_timer = std::chrono::high_resolution_clock::now();
+  auto duration_timer = std::chrono::duration_cast<std::chrono::microseconds>(end_timer - start_timer);
+  std::cout << "naive conv2d exec time: " << duration_timer.count() << " microseconds." << "\n";
+  
+
+  initialize_matrices();
   int x = 1, y = 1;
 
   std::cout << "\nCoordinate Descent:"
             << "\n";
+  start_timer = std::chrono::high_resolution_clock::now();
   auto result = coordinate_descent(x, y, runs);
+  end_timer = std::chrono::high_resolution_clock::now();
+  duration_timer = std::chrono::duration_cast<std::chrono::microseconds>(end_timer - start_timer);
+  std::cout << "coordinate search took " << duration_timer.count() << " microseconds to converge." << "\n";
   std::cout << "Converged to: (" << std::get<0>(result) << ", "
             << std::get<1>(result)
-            << ") with performance: " << std::get<2>(result) << " ms\n";
+            << ") with performance: " << std::get<2>(result) << " microseconds\n";
 
-
+  initialize_matrices();
   std::cout << "\nExhaustive search:"
             << "\n";
+  start_timer = std::chrono::high_resolution_clock::now();
   result = exhaustive_search(runs);
+  end_timer = std::chrono::high_resolution_clock::now();
+  duration_timer = std::chrono::duration_cast<std::chrono::microseconds>(end_timer - start_timer);
+  std::cout << "exhaustive search took " << duration_timer.count() << " microseconds to converge." << "\n";
   std::cout << "Converged to: (" << std::get<0>(result) << ", "
             << std::get<1>(result)
             << ") with performance: " << std::get<2>(result) << "ms\n";

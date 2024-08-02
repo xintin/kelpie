@@ -118,7 +118,7 @@ int main() {
             << std::endl;
 
   // Measure time for tiled conv2d with different tile sizes
-  std::vector<int> tile_sizes = {2, 4, 16, 32};
+  std::vector<int> tile_sizes = {32}; //{2, 4, 16, 32};
   for (int tile_size_t2 : tile_sizes) {
     for (int tile_size_t3 : tile_sizes) {
       // Reset C_tiled matrix

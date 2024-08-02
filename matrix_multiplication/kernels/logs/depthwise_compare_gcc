@@ -1,0 +1,10 @@
+Non-tiled version took 3228094 microseconds.
+Testing with tile sizes: (batch, channel, height, width) = (1, 1, 1, 1)
+Tiled version took 3178694 microseconds.
+Outputs match for tile sizes: (batch, channel, height, width) = (1, 1, 1, 1)
+Testing with tile sizes: (batch, channel, height, width) = (32, 32, 32, 32)
+Tiled version took 2744434 microseconds.
+Outputs match for tile sizes: (batch, channel, height, width) = (32, 32, 32, 32)
+Testing with tile sizes: (batch, channel, height, width) = (4, 2, 16, 8)
+Tiled version took 2759785 microseconds.
+Outputs match for tile sizes: (batch, channel, height, width) = (4, 2, 16, 8)

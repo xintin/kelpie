@@ -134,7 +134,7 @@ int measure_performance(int ts1, int ts2, int ts3, int ts4, int runs) {
     auto stop = std::chrono::high_resolution_clock::now();
 
     total_duration +=
-        std::chrono::duration_cast<std::chrono::milliseconds>(stop - start)
+        std::chrono::duration_cast<std::chrono::microseconds>(stop - start)
             .count();
   }
 
@@ -294,17 +294,27 @@ int main(int argc, char *argv[]) {
   int t1 = 1, t2 = 1, t3 = 1, t4 = 1;
 
   std::cout << "\nCoordinate Descent:\n";
+  auto start_timer = std::chrono::high_resolution_clock::now();
   auto result = coordinate_descent(t1, t2, t3, t4, runs);
+  auto end_timer = std::chrono::high_resolution_clock::now();
+  auto duration_timer = std::chrono::duration_cast<std::chrono::microseconds>(end_timer - start_timer);
+  std::cout << "coordinate search took " << duration_timer.count() << " microseconds to converge." << "\n";
+  
   std::cout << "Converged to: (" << std::get<0>(result) << ", "
             << std::get<1>(result) << ", " << std::get<2>(result) << ", "
             << std::get<3>(result)
-            << ") with performance: " << std::get<4>(result) << " ms\n";
+            << ") with performance: " << std::get<4>(result) << " microseconds\n";
 
   std::cout << "\nExhaustive search:\n";
+  start_timer = std::chrono::high_resolution_clock::now();
   result = exhaustive_search(runs);
+  end_timer = std::chrono::high_resolution_clock::now();
+  duration_timer = std::chrono::duration_cast<std::chrono::microseconds>(end_timer - start_timer);
+  std::cout << "exhaustive search took " << duration_timer.count() << " microseconds to converge." << "\n";
+  
   std::cout << "Converged to: (" << std::get<0>(result) << ", " <<
   std::get<1>(result) << ", " << std::get<2>(result) << ", " <<
-  std::get<3>(result) << ") with performance: " << std::get<4>(result) << "ms\n";
+  std::get<3>(result) << ") with performance: " << std::get<4>(result) << "microseconds\n";
 
   return 0;
 }
