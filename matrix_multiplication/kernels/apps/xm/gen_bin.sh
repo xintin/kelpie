@@ -64,3 +64,20 @@ cd ../apps/xm
 ./gemm_layernorm_compare_gcc > ../../logs/xm/gemm_layernorm_compare_gcc.log
 ./gemm_layernorm_online_coord_clang > ../../logs/xm/gemm_layernorm_online_coord_clang.log
 ./gemm_layernorm_online_coord_gcc > ../../logs/xm/gemm_layernorm_online_coord_gcc.log
+
+
+echo -ne "gemm\n" 
+
+cd ../../gemm
+
+/gpfs/projects/ChapmanGroup/schheda/llvm-host/bin/clang++ -std=c++17 -Wall -march=native -mavx -O3 -fno-inline-functions -mtune=native -mavx2 -mpopcnt -mbmi2 gemm_compare.cpp -o ../apps/xm/gemm_compare_clang
+g++ -std=c++17 -Wall -march=native -mavx -O3 -fno-inline-functions -mtune=native -mavx2 -mpopcnt -mbmi2 gemm_compare.cpp -o ../apps/xm/gemm_compare_gcc
+/gpfs/projects/ChapmanGroup/schheda/llvm-host/bin/clang++ -std=c++17 -Wall -march=native -mavx -O3 -fno-inline-functions -mtune=native -mavx2 -mpopcnt -mbmi2 gemm_dynamic_coord.cpp -o ../apps/xm/gemm_dynamic_coord_clang
+g++ -std=c++17 -Wall -march=native -mavx -O3 -fno-inline-functions -mtune=native -mavx2 -mpopcnt -mbmi2 gemm_dynamic_coord.cpp -o ../apps/xm/gemm_dynamic_coord_gcc
+
+cd ../apps/xm
+
+./gemm_compare_clang > ../../logs/xm/gemm_compare_clang.log
+./gemm_compare_gcc > ../../logs/xm/gemm_compare_gcc.log
+./gemm_dynamic_coord_clang > ../../logs/xm/gemm_dynamic_coord_clang.log
+./gemm_dynamic_coord_gcc > ../../logs/xm/gemm_dynamic_coord_gcc.log
