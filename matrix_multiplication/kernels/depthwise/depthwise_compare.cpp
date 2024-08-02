@@ -191,9 +191,9 @@ int main() {
                    output_height, output_width, filter_size, stride, padding,
                    dilation);
   auto end = high_resolution_clock::now();
-  auto duration_non_tiled = duration_cast<microseconds>(end - start);
+  auto duration_non_tiled = duration_cast<milliseconds>(end - start);
   cout << "Non-tiled version took " << duration_non_tiled.count()
-       << " microseconds." << endl;
+       << " milliseconds." << endl;
 
   // Test different tile sizes
   vector<tuple<int, int, int, int>> tile_sizes = {
@@ -223,8 +223,8 @@ int main() {
         output_width, filter_size, stride, padding, dilation, tile_size_batch,
         tile_size_channel, tile_size_height, tile_size_width);
     end = high_resolution_clock::now();
-    auto duration_tiled = duration_cast<microseconds>(end - start);
-    cout << "Tiled version took " << duration_tiled.count() << " microseconds."
+    auto duration_tiled = duration_cast<milliseconds>(end - start);
+    cout << "Tiled version took " << duration_tiled.count() << " milliseconds."
          << endl;
 
     if (compare_outputs(output_non_tiled, output_tiled)) {

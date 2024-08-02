@@ -66,8 +66,6 @@ void softmax_tiled(const vector<float>& input, vector<float>& exp_values, float 
     for (t2 = 0; t2 <= floord(inp_size - 1, tile_size); ++t2) {
         lbv = tile_size * t2;
         ubv = min(inp_size - 1, tile_size * t2 + tile_size - 1);
-        #pragma ivdep
-        #pragma vector always
         for (t3 = lbv; t3 <= ubv; ++t3) {
             output_tiled[t3] = exp_values[t3] / sum_exp;
         }
@@ -192,12 +190,21 @@ int main(int argc, char *argv[]) {
     int tile_size = 1;
 
     std::cout << "\nCoordinate Descent:\n";
+    auto start_timer = std::chrono::high_resolution_clock::now();
     auto result = coordinate_descent(tile_size, runs);
+    auto end_timer = std::chrono::high_resolution_clock::now();
+    auto duration_timer = std::chrono::duration_cast<std::chrono::microseconds>(end_timer - start_timer);
+    std::cout << "coordinate search took " << duration_timer.count() << " microseconds to converge." << "\n";
+
     std::cout << "Converged to: " << std::get<0>(result)
               << " with performance: " << std::get<1>(result) << " ms\n";
 
     std::cout << "\nExhaustive search:\n";
+    start_timer = std::chrono::high_resolution_clock::now();
     result = exhaustive_search(runs);
+    end_timer = std::chrono::high_resolution_clock::now();
+    duration_timer = std::chrono::duration_cast<std::chrono::microseconds>(end_timer - start_timer);
+    std::cout << "coordinate search took " << duration_timer.count() << " microseconds to converge." << "\n";
     std::cout << "Converged to: " << std::get<0>(result)
               << " with performance: " << std::get<1>(result) << " ms\n";
 

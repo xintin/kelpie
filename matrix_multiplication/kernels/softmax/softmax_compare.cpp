@@ -81,8 +81,6 @@ void softmax_tiled(const vector<float>& input, vector<float>& exp_values, float 
     for (t2 = 0; t2 <= floord(inp_size - 1, tile_size); ++t2) {
         lbv = tile_size * t2;
         ubv = min(inp_size - 1, tile_size * t2 + tile_size - 1);
-        #pragma ivdep
-        #pragma vector always
         for (t3 = lbv; t3 <= ubv; ++t3) {
             output_tiled[t3] = exp_values[t3] / sum_exp;
         }

@@ -7,8 +7,8 @@
 #include <tuple>
 #include <vector>
 
-#define M 100000
-#define N 10000
+#define M 1000
+#define N 1000
 #define F 3 // Filter size
 
 int A[M][N]; // Input matrix

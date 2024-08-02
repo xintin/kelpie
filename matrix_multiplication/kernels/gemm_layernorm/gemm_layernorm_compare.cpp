@@ -107,22 +107,22 @@ int main() {
     auto start_naive = high_resolution_clock::now();
     gemm_layernorm_naive(A, B);
     auto end_naive = high_resolution_clock::now();
-    auto duration_naive = duration_cast<microseconds>(end_naive - start_naive);
-    cout << "Naive version took " << duration_naive.count() << " microseconds." << endl;
+    auto duration_naive = duration_cast<milliseconds>(end_naive - start_naive);
+    cout << "Naive version took " << duration_naive.count() << " milliseconds." << endl;
 
     // Perform Pluto gemm_bias_relu and measure time
     auto start_pluto = high_resolution_clock::now();
     gemm_layernorm_tiled(A, B, output_pluto, 32, 32, 32);
     auto end_pluto = high_resolution_clock::now();
-    auto duration_pluto = duration_cast<microseconds>(end_pluto - start_pluto);
-    cout << "Pluto version took " << duration_pluto.count() << " microseconds." << endl;
+    auto duration_pluto = duration_cast<milliseconds>(end_pluto - start_pluto);
+    cout << "Pluto version took " << duration_pluto.count() << " milliseconds." << endl;
 
     // Perform tiled gemm_bias_relu and measure time
     auto start_tiled = high_resolution_clock::now();
     gemm_layernorm_tiled(A, B, output_tiled, 64, 128, 32);
     auto end_tiled = high_resolution_clock::now();
-    auto duration_tiled = duration_cast<microseconds>(end_tiled - start_tiled);
-    cout << "Tiled version took " << duration_tiled.count() << " microseconds." << endl;
+    auto duration_tiled = duration_cast<milliseconds>(end_tiled - start_tiled);
+    cout << "Tiled version took " << duration_tiled.count() << " milliseconds." << endl;
 
     // Compare outputs
     bool outputs_match = compare_outputs(output_naive, output_tiled);

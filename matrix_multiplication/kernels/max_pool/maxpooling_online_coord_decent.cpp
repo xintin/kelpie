@@ -166,12 +166,22 @@ int main() {
     initialize(A, B);
 
     // Perform coordinate descent and measure time
-    int runs = 1; // Example number of runs
+    int runs = 1; 
+    auto start_timer = std::chrono::high_resolution_clock::now();
     auto result = coordinate_descent(A, B, 1, 1, runs);
+    auto end_timer = std::chrono::high_resolution_clock::now();
+    auto duration_timer = std::chrono::duration_cast<std::chrono::milliseconds>(end_timer - start_timer);
+    std::cout << "Coordinate search took " << duration_timer.count() << " milliseconds to converge." << "\n";
+    
     cout << "Coordinate Descent result: (" << get<0>(result) << ", " << get<1>(result) << ") with performance: " << get<2>(result) << " ms\n";
 
     initialize(A, B);
+    start_timer = std::chrono::high_resolution_clock::now();
     result = exhaustive_search(A, B, runs);
+    end_timer = std::chrono::high_resolution_clock::now();
+    duration_timer = std::chrono::duration_cast<std::chrono::milliseconds>(end_timer - start_timer);
+    std::cout << "Exhaustive search took " << duration_timer.count() << " milliseconds to converge." << "\n";
+    
     cout << "Exhaustive Search result: (" << get<0>(result) << ", " << get<1>(result) << ") with performance: " << get<2>(result) << " ms\n";
 
     // initialize(A, B);

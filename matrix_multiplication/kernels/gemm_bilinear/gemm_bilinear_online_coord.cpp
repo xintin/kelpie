@@ -163,12 +163,22 @@ int main() {
   int runs = 1; // Number of runs for performance measurement
 
   cout << "Start coordinate search:\n";
+  auto start_timer = std::chrono::high_resolution_clock::now();
   auto result = coordinate_descent(1, 1, 1, runs);
+  auto end_timer = std::chrono::high_resolution_clock::now();
+  auto duration_timer = std::chrono::duration_cast<std::chrono::milliseconds>(end_timer - start_timer);
+  std::cout << "coordinate search took " << duration_timer.count() << " milliseconds to converge." << "\n";
+  
   cout << "Best tile sizes: (" << get<0>(result) << ", " << get<1>(result) << ", " << std::get<2>(result) << ") with performance: "
             << get<3>(result) << " ms\n";
 
   cout << "Start exhaustive search:\n";
+  start_timer = std::chrono::high_resolution_clock::now();
   result = exhaustive_search(runs);
+  end_timer = std::chrono::high_resolution_clock::now();
+  duration_timer = std::chrono::duration_cast<std::chrono::milliseconds>(end_timer - start_timer);
+  std::cout << "exhaustive search took " << duration_timer.count() << " milliseconds to converge." << "\n";
+  
   cout << "Best tile sizes: (" << get<0>(result) << ", " << get<1>(result) << ", " << std::get<2>(result) << ") with performance: "
             << get<3>(result) << " ms\n";
 
