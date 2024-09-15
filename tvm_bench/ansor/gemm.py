@@ -1,5 +1,11 @@
 import os, sys, time, argparse, tvm
-from tvm import te, auto_scheduler
+from tvm import te, auto_scheduler, topi
+
+num_threads = os.cpu_count()
+os.environ["TVM_NUM_THREADS"] = str(num_threads)
+os.environ["MKL_NUM_THREADS"] = str(num_threads * 2 // 3)
+os.environ["NUMEXPR_NUM_THREADS"] = str(num_threads * 2 // 3)
+os.environ["OMP_NUM_THREADS"] = str(num_threads * 2 // 3)
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.dirname(SCRIPT_DIR))
@@ -7,28 +13,23 @@ sys.path.append(os.path.dirname(SCRIPT_DIR))
 from utils import *
 
 ## ------------------ Global ---------------------
-N, L, M = 1000, 800, 700
+N, L, M = 1024, 1024, 1024
 dtype = "float32"
 
 
 ## ----------------- Benchmark -------------------
 @auto_scheduler.register_workload
-def ansor_mm(N, L, M, dtype="float32"):
+def gemm(N, L, M, dtype="float32"):
     A = te.placeholder((N, L), name="A", dtype=dtype)
     B = te.placeholder((L, M), name="B", dtype=dtype)
-
-    k = te.reduce_axis((0, L), name="k")
-    C = te.compute((N, M), lambda i, j: te.sum(A[i, k] * B[k, j], axis=k), name="C")
-
+    C = topi.matmul(A, B)
     return [A, B, C]
-
-
 ## ---------------------------------------------
 
 
 def generate_ansor_template(log_file, target, trials):
     task = tvm.auto_scheduler.SearchTask(
-        func=ansor_mm, args=(N, L, M, "float32"), target=target
+        func=gemm, args=(N, L, M, "float32"), target=target
     )
 
     ## Set Parameters for Auto-Scheduler
@@ -50,19 +51,16 @@ def generate_ansor_template(log_file, target, trials):
     task.tune(tune_option)
     end = time.time()
 
-    time_avg, best_cfg = get_best_time(log_file)
+    best_time, _ = get_best_time(log_file)
 
-    print("Time spent:", time_avg)
-    print("Config:", best_cfg)
-    print("Time spent to search:", end - start)
+    print(f"Best time (ms): {np.mean(best_time):.10f}")
+    print(f"Best std  (ms): {np.std(best_time):.10f}")
+    print(f"Tuning Time (min): {(end-start)/60:.2f}")
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        "python mm.py -m 'ansor' -a x86 -l 'results/cpu_matmul.json' -i 3"
-    )
-    parser.add_argument(
-        "-m", "--method", type=str, required=True, help="Options: ansor, droplet"
+        "python gemm.py -a x86 -l 'results/cpu_matmul.json' -t 1000"
     )
     parser.add_argument(
         "-a", "--arch", type=str, required=True, help="Options: x86, aarch64, cuda"
@@ -71,10 +69,13 @@ if __name__ == "__main__":
     parser.add_argument("-t", "--trials", type=int, default=100)
     args = parser.parse_args()
 
-    method = args.method
     arch = args.arch
     logfile = args.logfile
     trials = args.trials
+
+    # clean the files
+    if os.path.isfile(logfile):
+        os.remove(logfile)
 
     if arch == "x86":
         target = tvm.target.Target("llvm")
@@ -89,7 +90,4 @@ if __name__ == "__main__":
         print("Archtecture doesn't support.")
         exit(0)
 
-    if method == "ansor":
-        generate_ansor_template(logfile, target, trials)
-    elif method == "droplet":
-        build_template("mm", logfile, target, trials)
+    generate_ansor_template(logfile, target, trials)
