@@ -1,4 +1,7 @@
 # kelpie
+
+![Thumbnail](images/thumbnail.png)
+
 Improving Polyhedral-Based Optimizations With Dynamic Coordinate Descent
 
 
