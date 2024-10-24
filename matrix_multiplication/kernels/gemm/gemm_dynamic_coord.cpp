@@ -28,6 +28,11 @@ const std::vector<int> allowed_values = {1, 2, 4, 8, 16, 32, 64, 128, 256, 512};
 
 vector<vector<float>> output_tiled(input_height, vector<float>(input_width, 0));
 
+void matrix_multiply_tiled_pluto_expt(const std::vector<std::vector<float>> &A,
+                                      const std::vector<std::vector<float>> &B,
+                                      const int T4, const int T5,
+                                      const int T6);
+                                      
 int measure_performance(int ts1, int ts2, int ts3, int runs) {
   long long total_duration = 0;
 

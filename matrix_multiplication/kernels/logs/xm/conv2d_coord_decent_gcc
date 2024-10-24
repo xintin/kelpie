@@ -119,4 +119,4 @@ Exhaustive search:
 512 256 3591
 512 512 3457
 exhaustive search took 459326 microseconds to converge.
-Converged to: (16, 64) with performance: 3358ms
+Converged to: (16, 64) with performance: 3358 ms

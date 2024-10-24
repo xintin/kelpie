@@ -115,4 +115,4 @@ Exhaustive search:
 512 256 80026
 512 512 78392
 exhaustive search took 8443354 microseconds to converge.
-Converged to: (4, 128) with performance: 74912ms
+Converged to: (4, 128) with performance: 74912 ms

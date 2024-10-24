@@ -15,37 +15,37 @@
 # ./depthwise_coord_decent_gcc 1 > ../../logs/xm/depthwise_coord_decent_gcc.log
 # ./depthwise_coord_decent_clang 1 > ../../logs/xm/depthwise_coord_decent_clang.log
 
-echo -ne "gemm_bias_relu\n"
+# echo -ne "gemm_bias_relu\n"
 
-cd ../../gemm_bias_relu
+# cd ../../gemm_bias_relu
 
-/gpfs/projects/ChapmanGroup/schheda/llvm-host/bin/clang++ -std=c++17 -Wall -march=native -mavx -O3 -fno-inline-functions -mtune=native -mavx2 -mpopcnt -mbmi2 gemm_bias_relu_compare.cpp -o ../apps/xm/gemm_bias_relu_compare_clang
-g++ -std=c++17 -Wall -march=native -mavx -O3 -fno-inline-functions -mtune=native -mavx2 -mpopcnt -mbmi2 gemm_bias_relu_compare.cpp -o ../apps/xm/gemm_bias_relu_compare_gcc
-/gpfs/projects/ChapmanGroup/schheda/llvm-host/bin/clang++ -std=c++17 -Wall -march=native -mavx -O3 -fno-inline-functions -mtune=native -mavx2 -mpopcnt -mbmi2 gemm_bias_relu_online_coord.cpp -o ../apps/xm/gemm_bias_relu_online_coord_clang
-g++ -std=c++17 -Wall -march=native -mavx -O3 -fno-inline-functions -mtune=native -mavx2 -mpopcnt -mbmi2 gemm_bias_relu_online_coord.cpp -o ../apps/xm/gemm_bias_relu_online_coord_gcc
+# /gpfs/projects/ChapmanGroup/schheda/llvm-host/bin/clang++ -std=c++17 -Wall -march=native -mavx -O3 -fno-inline-functions -mtune=native -mavx2 -mpopcnt -mbmi2 gemm_bias_relu_compare.cpp -o ../apps/xm/gemm_bias_relu_compare_clang
+# g++ -std=c++17 -Wall -march=native -mavx -O3 -fno-inline-functions -mtune=native -mavx2 -mpopcnt -mbmi2 gemm_bias_relu_compare.cpp -o ../apps/xm/gemm_bias_relu_compare_gcc
+# /gpfs/projects/ChapmanGroup/schheda/llvm-host/bin/clang++ -std=c++17 -Wall -march=native -mavx -O3 -fno-inline-functions -mtune=native -mavx2 -mpopcnt -mbmi2 gemm_bias_relu_online_coord.cpp -o ../apps/xm/gemm_bias_relu_online_coord_clang
+# g++ -std=c++17 -Wall -march=native -mavx -O3 -fno-inline-functions -mtune=native -mavx2 -mpopcnt -mbmi2 gemm_bias_relu_online_coord.cpp -o ../apps/xm/gemm_bias_relu_online_coord_gcc
 
-cd ../apps/xm
+# cd ../apps/xm
 
-./gemm_bias_relu_compare_clang > ../../logs/xm/gemm_bias_relu_compare_clang.log
-./gemm_bias_relu_compare_gcc > ../../logs/xm/gemm_bias_relu_compare_gcc.log
-./gemm_bias_relu_online_coord_clang > ../../logs/xm/gemm_bias_relu_online_coord_clang.log
-./gemm_bias_relu_online_coord_gcc > ../../logs/xm/gemm_bias_relu_online_coord_gcc.log
+# ./gemm_bias_relu_compare_clang > ../../logs/xm/gemm_bias_relu_compare_clang.log
+# ./gemm_bias_relu_compare_gcc > ../../logs/xm/gemm_bias_relu_compare_gcc.log
+# ./gemm_bias_relu_online_coord_clang > ../../logs/xm/gemm_bias_relu_online_coord_clang.log
+# ./gemm_bias_relu_online_coord_gcc > ../../logs/xm/gemm_bias_relu_online_coord_gcc.log
 
 
-echo -ne "gemm_bilinear\n" 
+# echo -ne "gemm_bilinear\n" 
 
 cd ../../gemm_bilinear
 
-/gpfs/projects/ChapmanGroup/schheda/llvm-host/bin/clang++ -std=c++17 -Wall -march=native -mavx -O3 -fno-inline-functions -mtune=native -mavx2 -mpopcnt -mbmi2 gemm_bilinear_compare.cpp -o ../apps/xm/gemm_bilinear_compare_clang
-g++ -std=c++17 -Wall -march=native -mavx -O3 -fno-inline-functions -mtune=native -mavx2 -mpopcnt -mbmi2 gemm_bilinear_compare.cpp -o ../apps/xm/gemm_bilinear_compare_gcc
-/gpfs/projects/ChapmanGroup/schheda/llvm-host/bin/clang++ -std=c++17 -Wall -march=native -mavx -O3 -fno-inline-functions -mtune=native -mavx2 -mpopcnt -mbmi2 gemm_bilinear_online_coord.cpp -o ../apps/xm/gemm_bilinear_online_coord_clang
-g++ -std=c++17 -Wall -march=native -mavx -O3 -fno-inline-functions -mtune=native -mavx2 -mpopcnt -mbmi2 gemm_bilinear_online_coord.cpp -o ../apps/xm/gemm_bilinear_online_coord_gcc
+# /gpfs/projects/ChapmanGroup/schheda/llvm-host/bin/clang++ -std=c++17 -Wall -march=native -mavx -O3 -fno-inline-functions -mtune=native -mavx2 -mpopcnt -mbmi2 gemm_bilinear_compare.cpp -o ../apps/xm/gemm_bilinear_compare_clang
+# g++ -std=c++17 -Wall -march=native -mavx -O3 -fno-inline-functions -mtune=native -mavx2 -mpopcnt -mbmi2 gemm_bilinear_compare.cpp -o ../apps/xm/gemm_bilinear_compare_gcc
+# /gpfs/projects/ChapmanGroup/schheda/llvm-host/bin/clang++ -std=c++17 -Wall -march=native -mavx -O3 -fno-inline-functions -mtune=native -mavx2 -mpopcnt -mbmi2 gemm_bilinear_online_coord.cpp -o ../apps/xm/gemm_bilinear_online_coord_clang
+# g++ -std=c++17 -Wall -march=native -mavx -O3 -fno-inline-functions -mtune=native -mavx2 -mpopcnt -mbmi2 gemm_bilinear_online_coord.cpp -o ../apps/xm/gemm_bilinear_online_coord_gcc
 
 cd ../apps/xm
 
-./gemm_bilinear_compare_clang > ../../logs/xm/gemm_bilinear_compare_clang.log
-./gemm_bilinear_compare_gcc > ../../logs/xm/gemm_bilinear_compare_gcc.log
-./gemm_bilinear_online_coord_clang > ../../logs/xm/gemm_bilinear_online_coord_clang.log
+# ./gemm_bilinear_compare_clang > ../../logs/xm/gemm_bilinear_compare_clang.log
+# ./gemm_bilinear_compare_gcc > ../../logs/xm/gemm_bilinear_compare_gcc.log
+# ./gemm_bilinear_online_coord_clang > ../../logs/xm/gemm_bilinear_online_coord_clang.log
 ./gemm_bilinear_online_coord_gcc > ../../logs/xm/gemm_bilinear_online_coord_gcc.log
 
 
@@ -62,7 +62,7 @@ cd ../apps/xm
 
 ./gemm_layernorm_compare_clang > ../../logs/xm/gemm_layernorm_compare_clang.log
 ./gemm_layernorm_compare_gcc > ../../logs/xm/gemm_layernorm_compare_gcc.log
-./gemm_layernorm_online_coord_clang > ../../logs/xm/gemm_layernorm_online_coord_clang.log
+# ./gemm_layernorm_online_coord_clang > ../../logs/xm/gemm_layernorm_online_coord_clang.log
 ./gemm_layernorm_online_coord_gcc > ../../logs/xm/gemm_layernorm_online_coord_gcc.log
 
 
@@ -79,5 +79,5 @@ cd ../apps/xm
 
 ./gemm_compare_clang > ../../logs/xm/gemm_compare_clang.log
 ./gemm_compare_gcc > ../../logs/xm/gemm_compare_gcc.log
-./gemm_dynamic_coord_clang > ../../logs/xm/gemm_dynamic_coord_clang.log
+# ./gemm_dynamic_coord_clang > ../../logs/xm/gemm_dynamic_coord_clang.log
 ./gemm_dynamic_coord_gcc > ../../logs/xm/gemm_dynamic_coord_gcc.log
