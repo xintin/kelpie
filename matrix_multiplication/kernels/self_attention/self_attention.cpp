@@ -12,8 +12,8 @@ using namespace std;
 // Define the matrix type for simplicity
 using Matrix = vector<vector<double>>;
 
-const int SEQ_LEN = 4096; // 10^5
-const int EMB_DIM = 64;     // Embedding dimension
+const int SEQ_LEN = 4096;   // 10^5
+const int EMB_DIM = 64;     // Embedding dims
 
 // Initialize matrices Q, K, V outside main function
 Matrix Q(SEQ_LEN, vector<double>(EMB_DIM));
