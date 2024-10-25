@@ -16,7 +16,7 @@ sys.path.append(os.path.dirname(SCRIPT_DIR))
 from utils import *
 
 ## ------------------ Global ---------------------
-N = 1000
+N = 10000000
 dtype = "float32"
 
 def softmax(A: te.Tensor) -> te.Tensor:
@@ -32,13 +32,13 @@ def print_output(N, dtype="float32"):
 @tvm.script.ir_module
 class Main:
     @T.prim_func
-    def main(A: T.Buffer((1000, 1), "float32"), T_softmax_norm: T.Buffer((1000, 1), "float32")):
+    def main(A: T.Buffer((10000000, 1), "float32"), T_softmax_norm: T.Buffer((10000000, 1), "float32")):
         T.func_attr({"tir.noalias": T.bool(True)})
         # with T.block("root"):
-        T_softmax_maxelem = T.alloc_buffer((1000,))
-        T_softmax_exp = T.alloc_buffer((1000, 1))
-        T_softmax_expsum = T.alloc_buffer((1000,))
-        for i0, k in T.grid(1000, 1):
+        T_softmax_maxelem = T.alloc_buffer((10000000,))
+        T_softmax_exp = T.alloc_buffer((10000000, 1))
+        T_softmax_expsum = T.alloc_buffer((10000000,))
+        for i0, k in T.grid(10000000, 1):
             with T.block("T_softmax_maxelem"):
                 v_i0, v_k = T.axis.remap("SR", [i0, k])
                 T.reads(A[v_i0, v_k])
@@ -46,13 +46,13 @@ class Main:
                 with T.init():
                     T_softmax_maxelem[v_i0] = T.float32(-3.4028234663852886e+38)
                 T_softmax_maxelem[v_i0] = T.max(T_softmax_maxelem[v_i0], A[v_i0, v_k])
-        for i0, i1 in T.grid(1000, 1):
+        for i0, i1 in T.grid(10000000, 1):
             with T.block("T_softmax_exp"):
                 v_i0, v_i1 = T.axis.remap("SS", [i0, i1])
                 T.reads(A[v_i0, v_i1], T_softmax_maxelem[v_i0])
                 T.writes(T_softmax_exp[v_i0, v_i1])
                 T_softmax_exp[v_i0, v_i1] = T.exp(A[v_i0, v_i1] - T_softmax_maxelem[v_i0])
-        for i0, k in T.grid(1000, 1):
+        for i0, k in T.grid(10000000, 1):
             with T.block("T_softmax_expsum"):
                 v_i0, v_k = T.axis.remap("SR", [i0, k])
                 T.reads(T_softmax_exp[v_i0, v_k])
@@ -60,7 +60,7 @@ class Main:
                 with T.init():
                     T_softmax_expsum[v_i0] = T.float32(0)
                 T_softmax_expsum[v_i0] = T_softmax_expsum[v_i0] + T_softmax_exp[v_i0, v_k]
-        for i0, i1 in T.grid(1000, 1):
+        for i0, i1 in T.grid(10000000, 1):
             with T.block("T_softmax_norm"):
                 v_i0, v_i1 = T.axis.remap("SS", [i0, i1])
                 T.reads(T_softmax_exp[v_i0, v_i1], T_softmax_expsum[v_i0])
@@ -74,8 +74,8 @@ class Main:
 
 def ms_execute(logfile, target, target_name, trials):
     # only print
-    #print_output(N, dtype)
-    #return
+    # print_output(N, dtype)
+    # return
 
     start = time.time()
     database = ms.tune_tir(

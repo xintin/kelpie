@@ -16,7 +16,7 @@ sys.path.append(os.path.dirname(SCRIPT_DIR))
 from utils import *
 
 ## ------------------ Global ---------------------
-N, L, M = 1024, 1024, 1024
+N, L, M = 1000, 1000, 1000
 dtype = "float32"
 
 def gemm(A: te.Tensor, B: te.Tensor) -> te.Tensor:
@@ -33,10 +33,10 @@ def mm_print(N, L, M, dtype="float32"):
 @tvm.script.ir_module
 class Main:
     @T.prim_func
-    def main(A: T.Buffer((1024, 1024), "float32"), B: T.Buffer((1024, 1024), "float32"), T_matmul: T.Buffer((1024, 1024), "float32")):
+    def main(A: T.Buffer((1000, 1000), "float32"), B: T.Buffer((1000, 1000), "float32"), T_matmul: T.Buffer((1000, 1000), "float32")):
         T.func_attr({"tir.noalias": T.bool(True)})
         # with T.block("root"):
-        for ax0, ax1, k in T.grid(1024, 1024, 1024):
+        for ax0, ax1, k in T.grid(1000, 1000, 1000):
             with T.block("T_matmul"):
                 v_ax0, v_ax1, v_k = T.axis.remap("SSR", [ax0, ax1, k])
                 T.reads(A[v_ax0, v_k], B[v_k, v_ax1])

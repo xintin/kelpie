@@ -13,13 +13,15 @@ sys.path.append(os.path.dirname(SCRIPT_DIR))
 from utils import *
 
 ## ------------------ Global ---------------------
-N, L, M = 1024, 1024, 1024
+alpha = 1.0000001
+beta = 0.4
+N, L, M = 1000, 1000, 1000
 dtype = "float32"
 
-## ----------------- Benchmark -------------------
+
 def gemm_bias_relu(A: te.Tensor, B: te.Tensor, bias: te.tensor) -> te.Tensor:
-    C = topi.matmul(A, B)
-    D = topi.add(C, bias)
+    C = topi.matmul(A, B) * beta
+    D = topi.add(C, bias) * alpha
     E = topi.nn.relu(D)
     return E
 

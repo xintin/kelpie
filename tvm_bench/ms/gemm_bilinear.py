@@ -16,7 +16,7 @@ sys.path.append(os.path.dirname(SCRIPT_DIR))
 from utils import *
 
 ## ------------------ Global ---------------------
-N, L, M = 1024, 1024, 1024
+N, L, M = 1000, 1000, 1000
 alpha = 1.00000000001 
 beta = 0.4
 dtype = "float32"
@@ -38,11 +38,11 @@ def mm_print(N, L, M, dtype="float32"):
 @tvm.script.ir_module
 class Main:
     @T.prim_func
-    def main(A: T.Buffer((1024, 1024), "float32"), B: T.Buffer((1024, 1024), "float32"), compute: T.Buffer((1024, 1024), "float32")):
+    def main(A: T.Buffer((1000, 1000), "float32"), B: T.Buffer((1000, 1000), "float32"), compute: T.Buffer((1000, 1000), "float32")):
         T.func_attr({"tir.noalias": T.bool(True)})
         # with T.block("root"):
-        C = T.alloc_buffer((1024, 1024))
-        for i, j, k in T.grid(1024, 1024, 1024):
+        C = T.alloc_buffer((1000, 1000))
+        for i, j, k in T.grid(1000, 1000, 1000):
             with T.block("C"):
                 v_i, v_j, v_k = T.axis.remap("SSR", [i, j, k])
                 T.reads(A[v_i, v_k], B[v_k, v_j])
@@ -50,7 +50,7 @@ class Main:
                 with T.init():
                     C[v_i, v_j] = T.float32(0)
                 C[v_i, v_j] = C[v_i, v_j] + T.float32(1.0) * A[v_i, v_k] * B[v_k, v_j]
-        for i, j in T.grid(1024, 1024):
+        for i, j in T.grid(1000, 1000):
             with T.block("compute"):
                 v_i, v_j = T.axis.remap("SS", [i, j])
                 T.reads(C[v_i, v_j])
@@ -63,8 +63,8 @@ class Main:
 
 def ms_execute(logfile, target, target_name, trials):
     # only print
-    #mm_print(N, L, M, dtype)
-    #return
+    # mm_print(N, L, M, dtype)
+    # return
 
     start = time.time()
     database = ms.tune_tir(

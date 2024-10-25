@@ -13,7 +13,7 @@ sys.path.append(os.path.dirname(SCRIPT_DIR))
 from utils import *
 
 ## ------------------ Global ---------------------
-N, L, M = 1024, 1024, 1024
+N, L, M = 1000, 1000, 1000
 alpha = 1.00000000001 
 beta = 0.4
 dtype = "float32"

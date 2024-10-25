@@ -17,12 +17,9 @@ sys.path.append(os.path.dirname(SCRIPT_DIR))
 from utils import *
 
 ## ------------------ Global ---------------------
-input_shape = (128, 168, 83, 83)
-dtype = "float32"
-
-# avg      128 168 83 83 1  2       VALID
 # pooltype N,  CI, H, W, K, strides padding
-
+input_shape = (10000, 10000, 32, 64)
+dtype = "float32"
 
 ## ----------------- Benchmark -------------------
 def print_pooling(input_shape, dtype="float32"):
@@ -36,10 +33,10 @@ def print_pooling(input_shape, dtype="float32"):
 @tvm.script.ir_module
 class Main:
     @T.prim_func
-    def main(A: T.Buffer((128, 168, 83, 83), "float32"), pool_max: T.Buffer((128, 168, 42, 42), "float32")):
+    def main(A: T.Buffer((10000, 10000, 32, 64), "float32"), pool_max: T.Buffer((10000, 10000, 16, 32), "float32")):
         T.func_attr({"tir.noalias": T.bool(True)})
         # with T.block("root"):
-        for ax0, ax1, ax2, ax3, rv0, rv1 in T.grid(128, 168, 42, 42, 1, 1):
+        for ax0, ax1, ax2, ax3, rv0, rv1 in T.grid(10000, 10000, 16, 32, 1, 1):
             with T.block("pool_max"):
                 v_ax0, v_ax1, v_ax2, v_ax3, v_rv0, v_rv1 = T.axis.remap("SSSSRR", [ax0, ax1, ax2, ax3, rv0, rv1])
                 T.reads(A[v_ax0, v_ax1, v_ax2 * 2 + v_rv0, v_ax3 * 2 + v_rv1])
@@ -52,8 +49,8 @@ class Main:
 
 def ms_execute(logfile, target, target_name, trials):
     # only print, just to collect the IR module
-    #print_pooling(input_shape)
-    #return
+    # print_pooling(input_shape)
+    # return
 
     start = time.time()
     database = ms.tune_tir(

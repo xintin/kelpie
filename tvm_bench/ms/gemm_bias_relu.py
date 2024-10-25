@@ -16,13 +16,15 @@ sys.path.append(os.path.dirname(SCRIPT_DIR))
 from utils import *
 
 ## ------------------ Global ---------------------
-N, L, M = 1024, 1024, 1024
+alpha = 1.0000001
+beta = 0.4
+N, L, M = 1000, 1000, 1000
 dtype = "float32"
 
 
 def gemm_bias_relu(A: te.Tensor, B: te.Tensor, bias: te.tensor) -> te.Tensor:
-    C = topi.matmul(A, B)
-    D = topi.add(C, bias)
+    C = topi.matmul(A, B) * beta
+    D = topi.add(C, bias) * alpha
     E = topi.nn.relu(D)
     return E
 
@@ -37,12 +39,14 @@ def mm_print(N, L, M, dtype="float32"):
 @tvm.script.ir_module
 class Main:
     @T.prim_func
-    def main(A: T.Buffer((1024, 1024), "float32"), B: T.Buffer((1024, 1024), "float32"), bias: T.Buffer((1024, 1024), "float32"), compute: T.Buffer((1024, 1024), "float32")):
+    def main(A: T.Buffer((1000, 1000), "float32"), B: T.Buffer((1000, 1000), "float32"), bias: T.Buffer((1000, 1000), "float32"), compute: T.Buffer((1000, 1000), "float32")):
         T.func_attr({"tir.noalias": T.bool(True)})
         # with T.block("root"):
-        T_matmul = T.alloc_buffer((1024, 1024))
-        T_add = T.alloc_buffer((1024, 1024))
-        for ax0, ax1, k in T.grid(1024, 1024, 1024):
+        T_matmul = T.alloc_buffer((1000, 1000))
+        T_multiply = T.alloc_buffer((1000, 1000))
+        T_add = T.alloc_buffer((1000, 1000))
+        T_multiply_1 = T.alloc_buffer((1000, 1000))
+        for ax0, ax1, k in T.grid(1000, 1000, 1000):
             with T.block("T_matmul"):
                 v_ax0, v_ax1, v_k = T.axis.remap("SSR", [ax0, ax1, k])
                 T.reads(A[v_ax0, v_k], B[v_k, v_ax1])
@@ -50,27 +54,37 @@ class Main:
                 with T.init():
                     T_matmul[v_ax0, v_ax1] = T.float32(0)
                 T_matmul[v_ax0, v_ax1] = T_matmul[v_ax0, v_ax1] + A[v_ax0, v_k] * B[v_k, v_ax1]
-        for ax0, ax1 in T.grid(1024, 1024):
+        for ax0, ax1 in T.grid(1000, 1000):
+            with T.block("T_multiply"):
+                v_ax0, v_ax1 = T.axis.remap("SS", [ax0, ax1])
+                T.reads(T_matmul[v_ax0, v_ax1])
+                T.writes(T_multiply[v_ax0, v_ax1])
+                T_multiply[v_ax0, v_ax1] = T_matmul[v_ax0, v_ax1] * T.float32(0.40000000000000002)
+        for ax0, ax1 in T.grid(1000, 1000):
             with T.block("T_add"):
                 v_ax0, v_ax1 = T.axis.remap("SS", [ax0, ax1])
-                T.reads(T_matmul[v_ax0, v_ax1], bias[v_ax0, v_ax1])
+                T.reads(T_multiply[v_ax0, v_ax1], bias[v_ax0, v_ax1])
                 T.writes(T_add[v_ax0, v_ax1])
-                T_add[v_ax0, v_ax1] = T_matmul[v_ax0, v_ax1] + bias[v_ax0, v_ax1]
-        for i0, i1 in T.grid(1024, 1024):
+                T_add[v_ax0, v_ax1] = T_multiply[v_ax0, v_ax1] + bias[v_ax0, v_ax1]
+        for ax0, ax1 in T.grid(1000, 1000):
+            with T.block("T_multiply_1"):
+                v_ax0, v_ax1 = T.axis.remap("SS", [ax0, ax1])
+                T.reads(T_add[v_ax0, v_ax1])
+                T.writes(T_multiply_1[v_ax0, v_ax1])
+                T_multiply_1[v_ax0, v_ax1] = T_add[v_ax0, v_ax1] * T.float32(1.0000001000000001)
+        for i0, i1 in T.grid(1000, 1000):
             with T.block("compute"):
                 v_i0, v_i1 = T.axis.remap("SS", [i0, i1])
-                T.reads(T_add[v_i0, v_i1])
+                T.reads(T_multiply_1[v_i0, v_i1])
                 T.writes(compute[v_i0, v_i1])
-                compute[v_i0, v_i1] = T.max(T_add[v_i0, v_i1], T.float32(0))
-
-
+                compute[v_i0, v_i1] = T.max(T_multiply_1[v_i0, v_i1], T.float32(0))
 ## ---------------------------------------------
 
 
 def ms_execute(logfile, target, target_name, trials):
     # only print
-    #mm_print(N, L, M, dtype)
-    #return
+    # mm_print(N, L, M, dtype)
+    # return
 
     start = time.time()
     database = ms.tune_tir(

@@ -14,11 +14,12 @@ sys.path.append(os.path.dirname(SCRIPT_DIR))
 from utils import *
 
 ## ------------------ Global ---------------------
+# (N, C, H, W)
 input_shape = (128, 168, 83, 83)
 dtype = "float32"
 
 # avg      128 168 83 83 1  2       VALID
-# pooltype N,  CI, H, W, K, strides padding
+# pooltype N, CI, H, W, K
 
 
 ## ----------------- Benchmark -------------------
@@ -26,7 +27,7 @@ dtype = "float32"
 def ansor_pool2d(input_shape, dtype="float32"):
     A = te.placeholder(shape=input_shape, name="A", dtype=dtype)
     B = topi.nn.pool2d(
-        A, (1, 1), (2, 2), (1, 1), get_pad_tuple("VALID", (1, 1)), pool_type="max"
+        A, (1, 1), (2, 2), (1, 1), get_pad_tuple("VALID", (1, 1)), pool_type="max", layout='NCHW'
     )
     return [A, B]
 ## ---------------------------------------------

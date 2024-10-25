@@ -13,9 +13,8 @@ sys.path.append(os.path.dirname(SCRIPT_DIR))
 from utils import *
 
 ## ------------------ Global ---------------------
-N, L, M = 1024, 1024, 1024
+N, L, M = 1000, 1000, 1000
 dtype = "float32"
-
 
 ## ----------------- Benchmark -------------------
 @auto_scheduler.register_workload

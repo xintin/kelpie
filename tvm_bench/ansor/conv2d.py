@@ -15,7 +15,7 @@ sys.path.append(os.path.dirname(SCRIPT_DIR))
 from utils import *
 
 ## ------------------ Global ---------------------
-input_shape = (1, 3, 224, 224)
+input_shape = (1, 3, 1000, 1000)
 filter_shape = (64, 3, 3, 3)
 strides = (1, 1)
 padding = (1, 1)
@@ -33,46 +33,6 @@ def conv2d_ansor(input_shape, filter_shape):
         A, W, strides, padding, dilation, data_layout=layout, out_dtype=dtype
     )
     return [A, W, C]
-
-
-@tvm.script.ir_module
-class Main:
-    @T.prim_func
-    def main(
-        A: T.Buffer((1, 3, 224, 224), "float32"),
-        W: T.Buffer((64, 3, 3, 3), "float32"),
-        conv2d_nchw: T.Buffer((1, 64, 224, 224), "float32"),
-    ):
-        T.func_attr({"tir.noalias": T.bool(True)})
-        # with T.block("root"):
-        pad_temp = T.alloc_buffer((1, 3, 226, 226))
-        for i0, i1, i2, i3 in T.grid(1, 3, 226, 226):
-            with T.block("pad_temp"):
-                v_i0, v_i1, v_i2, v_i3 = T.axis.remap("SSSS", [i0, i1, i2, i3])
-                T.reads(A[v_i0, v_i1, v_i2 - 1, v_i3 - 1])
-                T.writes(pad_temp[v_i0, v_i1, v_i2, v_i3])
-                pad_temp[v_i0, v_i1, v_i2, v_i3] = T.if_then_else(
-                    1 <= v_i2 and v_i2 < 225 and 1 <= v_i3 and v_i3 < 225,
-                    A[v_i0, v_i1, v_i2 - 1, v_i3 - 1],
-                    T.float32(0),
-                )
-        for nn, ff, yy, xx, rc, ry, rx in T.grid(1, 64, 224, 224, 3, 3, 3):
-            with T.block("conv2d_nchw"):
-                v_nn, v_ff, v_yy, v_xx, v_rc, v_ry, v_rx = T.axis.remap(
-                    "SSSSRRR", [nn, ff, yy, xx, rc, ry, rx]
-                )
-                T.reads(
-                    pad_temp[v_nn, v_rc, v_yy + v_ry, v_xx + v_rx],
-                    W[v_ff, v_rc, v_ry, v_rx],
-                )
-                T.writes(conv2d_nchw[v_nn, v_ff, v_yy, v_xx])
-                with T.init():
-                    conv2d_nchw[v_nn, v_ff, v_yy, v_xx] = T.float32(0)
-                conv2d_nchw[v_nn, v_ff, v_yy, v_xx] = (
-                    conv2d_nchw[v_nn, v_ff, v_yy, v_xx]
-                    + pad_temp[v_nn, v_rc, v_yy + v_ry, v_xx + v_rx]
-                    * W[v_ff, v_rc, v_ry, v_rx]
-                )
 
 def generate_ansor_template(log_file, target, trials):
     task = tvm.auto_scheduler.SearchTask(
