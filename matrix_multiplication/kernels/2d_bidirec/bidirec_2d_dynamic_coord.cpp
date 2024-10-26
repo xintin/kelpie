@@ -195,7 +195,7 @@ int main(int argc, char* argv[]) {
     cout << "Performing Coordinate Descent...\n";
     auto start_coordinate_descent = chrono::high_resolution_clock::now();
     // Initialize Coordinate Descent with a starting tile_size_t2, e.g., 32
-    int initial_tile_size_coord = 32;
+    int initial_tile_size_coord = 1;
     tuple<int, double> coordinate_result = coordinate_descent(a_coordinate, initial_tile_size_coord, allowed_values, runs, max_distance);
     auto end_coordinate_descent = chrono::high_resolution_clock::now();
     chrono::duration<double, milli> duration_coordinate_descent = end_coordinate_descent - start_coordinate_descent;

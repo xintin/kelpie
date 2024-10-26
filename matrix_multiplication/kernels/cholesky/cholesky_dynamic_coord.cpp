@@ -359,7 +359,7 @@ int main(int argc, char* argv[]) {
 
     // Run Coordinate Descent
     // Initialize with tile sizes (32,32,32,32)
-    int initial_ts2 = 32, initial_ts3 = 32, initial_ts4 = 32, initial_ts5 = 32;
+    int initial_ts2 = 1, initial_ts3 = 1, initial_ts4 = 1, initial_ts5 = 1;
     auto start_coordinate = chrono::high_resolution_clock::now();
     auto coordinate_result = coordinate_descent(initial_ts2, initial_ts3, initial_ts4, initial_ts5, runs, allowed_values, max_distance, a_tiled);
     auto end_coordinate = chrono::high_resolution_clock::now();
