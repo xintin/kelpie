@@ -54,8 +54,8 @@ def generate_ansor_template(log_file, target, trials):
 
     best_time, _ = get_best_time(log_file)
 
-    print(f"Best time (ms): {np.mean(best_time):.10f}")
-    print(f"Best std  (ms): {np.std(best_time):.10f}")
+    print(f"Best time (s): {np.mean(best_time):.10f}")
+    print(f"Best std  (s): {np.std(best_time):.10f}")
     print(f"Tuning Time (min): {(end-start)/60:.2f}")
 
 

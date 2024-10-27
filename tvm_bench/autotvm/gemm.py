@@ -1,5 +1,5 @@
 import os, sys, time, argparse, tvm
-from tvm import te, auto_scheduler, topi
+from tvm import te, autotvm, topi
 
 num_threads = os.cpu_count()
 os.environ["TVM_NUM_THREADS"] = str(num_threads)
@@ -14,50 +14,64 @@ from utils import *
 
 ## ------------------ Global ---------------------
 N, L, M = 1000, 1000, 1000
-alpha = 1.00000000001 
-beta = 0.4
 dtype = "float32"
+search_space = [1] + [i for i in range(2,129,2)]
 
 ## ----------------- Benchmark -------------------
-def gemm_bilinear(A: te.Tensor, B: te.Tensor) -> te.Tensor:
-    k = te.reduce_axis((0, L), name="k")
-    C = te.compute((N, M), lambda i, j: te.sum(alpha * A[i, k] * B[k, j], axis=k), name="C")
-    D = te.compute((N,M), lambda i, j: te.add(C[i, j], C[i, j] * beta))
-    return D
-
-@auto_scheduler.register_workload
-def gemm(N, L, M, dtype="float32"):
+def mm(N, L, M, dtype="float32"):
     A = te.placeholder((N, L), name="A", dtype=dtype)
     B = te.placeholder((L, M), name="B", dtype=dtype)
-    C = gemm_bilinear(A, B)
+    C = topi.matmul(A, B)
     return [A, B, C]
-
-
 ## ---------------------------------------------
 
+@autotvm.template("gemm")
+def gemm(N, L, M, dtype="float"):
+    A, B, C = mm(N, L, M, dtype)
+    s = te.create_schedule(C.op)
 
-def generate_ansor_template(log_file, target, trials):
-    task = tvm.auto_scheduler.SearchTask(
-        func=gemm, args=(N, L, M, "float32"), target=target
-    )
+    # schedule
+    y, x = s[C].op.axis
+    k = s[C].op.reduce_axis[0]
 
-    ## Set Parameters for Auto-Scheduler
-    trial = trials
-    tune_option = auto_scheduler.TuningOptions(
-        num_measure_trials=trial,  # change this to 20000 to achieve the best performance
-        runner=auto_scheduler.LocalRunner(
-            number=10,
-            repeat=3,
-            timeout=100,
-            enable_cpu_cache_flush=True if target == "llvm" else False,
-        ),
-        measure_callbacks=[auto_scheduler.RecordToFile(log_file)],
-        verbose=0,
-    )
+    # get the config object
+    cfg = autotvm.get_config()
+
+    # define search space
+    cfg.define_knob("tile_x", search_space)
+    cfg.define_knob("tile_y", search_space)
+
+    # schedule according to config
+    x0, x1 = s[C].split(x, cfg["tile_x"].val)
+    y0, y1 = s[C].split(y, cfg["tile_y"].val)
+
+    s[C].reorder(y0, x0, k, y1, x1)
+
+    return s, [A, B, C]
+
+
+def generate_autotvm_template(log_file, target, trials):
+    
+    with tvm.transform.PassContext(opt_level=3):
+        task = autotvm.task.create("gemm", args=(N, L, M, "float32"), target=target)
+        #print(task.config_space)
+        tuner = autotvm.tuner.XGBTuner(task, loss_type="rank")
 
     start = time.time()
-    # Run auto-tuning (search)
-    task.tune(tune_option)
+    with tvm.transform.PassContext(opt_level=3):
+        tuner.tune(
+            n_trial=min(trials, len(task.config_space)),
+            measure_option=autotvm.measure_option(
+                builder="local", 
+                runner=autotvm.LocalRunner(
+                    number=2, 
+                    repeat=5, 
+                    timeout=100, 
+                    enable_cpu_cache_flush=True if target == "llvm" else False,
+                )
+            ),
+            callbacks=[autotvm.callback.log_to_file(log_file)],
+        )
     end = time.time()
 
     best_time, _ = get_best_time(log_file)
@@ -69,7 +83,7 @@ def generate_ansor_template(log_file, target, trials):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        "python gemm_bias_relu.py -a x86 -l 'results/cpu_matmul.json' -t 1000"
+        "python gemm.py -a x86 -l 'results/cpu_matmul.json' -t 1000"
     )
     parser.add_argument(
         "-a", "--arch", type=str, required=True, help="Options: x86, aarch64, cuda"
@@ -99,4 +113,4 @@ if __name__ == "__main__":
         print("Archtecture doesn't support.")
         exit(0)
 
-    generate_ansor_template(logfile, target, trials)
+    generate_autotvm_template(logfile, target, trials)
