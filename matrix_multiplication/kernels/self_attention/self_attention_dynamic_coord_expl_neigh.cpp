@@ -358,7 +358,7 @@ int main(int argc, char* argv[]) {
 
     initialize_matrices();
 
-    int x = 32, y = 32;
+    int x = 1, y = 1;
 
     auto start_timer = chrono::high_resolution_clock::now();
     auto result = coordinate_descent(x, y, runs, max_distance);
