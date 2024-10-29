@@ -1,11 +1,6 @@
 import os, sys, time, argparse, tvm
 from tvm import te, autotvm, topi
-
-num_threads = os.cpu_count()
-os.environ["TVM_NUM_THREADS"] = str(num_threads)
-os.environ["MKL_NUM_THREADS"] = str(num_threads * 2 // 3)
-os.environ["NUMEXPR_NUM_THREADS"] = str(num_threads * 2 // 3)
-os.environ["OMP_NUM_THREADS"] = str(num_threads * 2 // 3)
+from tvm.topi.nn.utils import get_pad_tuple
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.dirname(SCRIPT_DIR))
@@ -13,45 +8,55 @@ sys.path.append(os.path.dirname(SCRIPT_DIR))
 from utils import *
 
 ## ------------------ Global ---------------------
-N, L, M = 1000, 1000, 1000
+input_shape = (128, 168, 83, 83)
 dtype = "float32"
 search_space = [1] + [i for i in range(2,129,2)]
 
+# avg      128 168 83 83 1  2       VALID
+# pooltype N,  CI, H, W, K, strides padding
+
+
 ## ----------------- Benchmark -------------------
-def mm(N, L, M, dtype="float32"):
-    A = te.placeholder((N, L), name="A", dtype=dtype)
-    B = te.placeholder((L, M), name="B", dtype=dtype)
-    C = topi.matmul(A, B)
-    return [A, B, C]
-## ---------------------------------------------
+def max_pool(input_shape, dtype="float32"):
+    A = te.placeholder(shape=input_shape, name="A", dtype=dtype)
+    B = topi.nn.pool2d(
+        A, (1, 1), (2, 2), (1, 1), get_pad_tuple("VALID", (1, 1)), pool_type="avg"
+    )
+    return [A, B]
 
-@autotvm.template("gemm")
-def gemm(N, L, M, dtype="float"):
-    A, B, C = mm(N, L, M, dtype)
-    s = te.create_schedule(C.op)
+@autotvm.template("max_pool")
+def max_pool_autotvm(input_shape, dtype="float"):
+    A, B = max_pool(input_shape, dtype)
+    s = te.create_schedule(B.op)
 
+    #print(s[B].op.axis)
     # schedule
-    y, x = s[C].op.axis
-    k = s[C].op.reduce_axis[0]
+    n, y, x, j = s[B].op.axis
 
     # get the config object
     cfg = autotvm.get_config()
 
     # define search space
+    cfg.define_knob("tile_n", search_space)
     cfg.define_knob("tile_x", search_space)
     cfg.define_knob("tile_y", search_space)
+    cfg.define_knob("tile_j", search_space)
 
     # schedule according to config
-    x0, x1 = s[C].split(x, cfg["tile_x"].val)
-    y0, y1 = s[C].split(y, cfg["tile_y"].val)
+    x0, x1 = s[B].split(x, cfg["tile_x"].val)
+    y0, y1 = s[B].split(y, cfg["tile_y"].val)
+    n0, n1 = s[B].split(n, cfg["tile_x"].val)
+    j0, j1 = s[B].split(j, cfg["tile_j"].val)
 
-    s[C].reorder(y0, x0, k, y1, x1)
+    s[B].reorder(n0, y0, x0, j0, n1, y1, x1, j1)
 
-    return s, [A, B, C]
+    return s, [A, B]
+
+## ---------------------------------------------
 
 
 def generate_autotvm_template(log_file, target, trials):
-    task = autotvm.task.create("gemm", args=(N, L, M, "float32"), target=target)
+    task = autotvm.task.create("max_pool", args=(input_shape, "float32"), target=target)
     #print(task.config_space)
     tuner = autotvm.tuner.XGBTuner(task, loss_type="rank")
 

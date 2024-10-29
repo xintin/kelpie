@@ -13,26 +13,46 @@ sys.path.append(os.path.dirname(SCRIPT_DIR))
 from utils import *
 
 ## ------------------ Global ---------------------
-N, L, M = 1000, 1000, 1000
+N = 1000
 dtype = "float32"
-search_space = [1] + [i for i in range(2,129,2)]
+search_space = [1] + [i for i in range(2,65,2)]
 
-## ----------------- Benchmark -------------------
-def mm(N, L, M, dtype="float32"):
-    A = te.placeholder((N, L), name="A", dtype=dtype)
-    B = te.placeholder((L, M), name="B", dtype=dtype)
-    C = topi.matmul(A, B)
-    return [A, B, C]
-## ---------------------------------------------
+def cholesky(N, dtype) -> te.Tensor:
+    A = te.placeholder((N, N), name="A", dtype=dtype)
+    k = te.reduce_axis((0, N), name="k")
+    fdot = te.compute([N,N], lambda i, k: te.if_then_else(
+                    k < i,
+                    A[i, k] * A[k, i], 
+                    0
+                ), name="fdot_cond"
+    )
 
-@autotvm.template("gemm")
-def gemm(N, L, M, dtype="float"):
-    A, B, C = mm(N, L, M, dtype)
-    s = te.create_schedule(C.op)
+    A = te.compute([N, N], lambda i, j: te.if_then_else( 
+        i == j, A[i][j] - fdot[i][j], A[i][j]
+    ), name="A")
 
+    fdot = te.compute([N,], lambda i: te.sum(A[i, k] * A[k, i], axis=k), name="fdot")
+
+    res = te.compute(
+        (N, N),
+        lambda i, j: te.if_then_else(
+            te.all(j > i),
+            (A[i, j] - fdot[i]) / A[i, i],
+            0.0
+        ),
+        name="res"
+    )
+    return A, res
+
+@autotvm.template("cholesky")
+def cholesky_autotvm(N, dtype="float32"):
+    A, B = cholesky(N, dtype)
+
+    s = te.create_schedule(B.op)
+
+    print(s[B].op.axis)
     # schedule
-    y, x = s[C].op.axis
-    k = s[C].op.reduce_axis[0]
+    y, x  = s[B].op.axis
 
     # get the config object
     cfg = autotvm.get_config()
@@ -42,16 +62,19 @@ def gemm(N, L, M, dtype="float"):
     cfg.define_knob("tile_y", search_space)
 
     # schedule according to config
-    x0, x1 = s[C].split(x, cfg["tile_x"].val)
-    y0, y1 = s[C].split(y, cfg["tile_y"].val)
+    x0, x1 = s[B].split(x, cfg["tile_x"].val)
+    y0, y1 = s[B].split(y, cfg["tile_y"].val)
 
-    s[C].reorder(y0, x0, k, y1, x1)
+    s[B].reorder(y0, x0, y1, x1)
 
-    return s, [A, B, C]
+    return s, [A, B]
 
 
-def generate_autotvm_template(log_file, target, trials):
-    task = autotvm.task.create("gemm", args=(N, L, M, "float32"), target=target)
+## ---------------------------------------------
+
+
+def autotvm_template(log_file, target, trials):
+    task = autotvm.task.create("cholesky",args=(N, "float32"), target=target)
     #print(task.config_space)
     tuner = autotvm.tuner.XGBTuner(task, loss_type="rank")
 
@@ -80,7 +103,7 @@ def generate_autotvm_template(log_file, target, trials):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        "python gemm.py -a x86 -l 'results/cpu_matmul.json' -t 1000"
+        "python gemm_layernorm.py -a x86 -l 'results/cpu_matmul.json' -t 1000"
     )
     parser.add_argument(
         "-a", "--arch", type=str, required=True, help="Options: x86, aarch64, cuda"
@@ -110,4 +133,4 @@ if __name__ == "__main__":
         print("Archtecture doesn't support.")
         exit(0)
 
-    generate_autotvm_template(logfile, target, trials)
+    autotvm_template(logfile, target, trials)

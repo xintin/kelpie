@@ -13,26 +13,36 @@ sys.path.append(os.path.dirname(SCRIPT_DIR))
 from utils import *
 
 ## ------------------ Global ---------------------
+alpha = 1.0000001
+beta = 0.4
+epsilon = 0.00001
 N, L, M = 1000, 1000, 1000
 dtype = "float32"
 search_space = [1] + [i for i in range(2,129,2)]
 
 ## ----------------- Benchmark -------------------
-def mm(N, L, M, dtype="float32"):
+def gemm_layernorm(N, L, M, dtype="float32") -> te.Tensor:
     A = te.placeholder((N, L), name="A", dtype=dtype)
     B = te.placeholder((L, M), name="B", dtype=dtype)
-    C = topi.matmul(A, B)
-    return [A, B, C]
-## ---------------------------------------------
+    k = te.reduce_axis((0, L), name="k")
+    C = te.compute((N, M), lambda i, j: te.sum(alpha * A[i, k] * B[k, j], axis=k), name="C")
+    D = te.compute((N, M), lambda i, j: te.add(C[i, j], C[i, j] * beta))
 
-@autotvm.template("gemm")
-def gemm(N, L, M, dtype="float"):
-    A, B, C = mm(N, L, M, dtype)
+    sum_mean = te.compute((N,), lambda i: te.sum(D[i, k], axis=k), name="sum_mean")
+    mean = te.compute((N,), lambda i: te.div(sum_mean[i], L), name="mean")
+    var = te.compute((N,), lambda i: te.sum((D[i, k] - mean[i]) * (D[i, k] - mean[i]), axis=k), name='variance')
+    norm = te.compute((N, M), lambda i, j: (D[i, j] - mean[i]) / te.sqrt(var[i] + epsilon), name='normalized')
+
+    return [A, B, norm]
+
+@autotvm.template("gemm_layernorm")
+def gemm_layernorm_autotvm(N, L, M, dtype="float32"):
+    A, B, C = gemm_layernorm(N, L, M)
     s = te.create_schedule(C.op)
-
+    
+    print(s[C].op.axis)
     # schedule
-    y, x = s[C].op.axis
-    k = s[C].op.reduce_axis[0]
+    y, x  = s[C].op.axis
 
     # get the config object
     cfg = autotvm.get_config()
@@ -45,13 +55,13 @@ def gemm(N, L, M, dtype="float"):
     x0, x1 = s[C].split(x, cfg["tile_x"].val)
     y0, y1 = s[C].split(y, cfg["tile_y"].val)
 
-    s[C].reorder(y0, x0, k, y1, x1)
+    s[C].reorder(y0, x0, y1, x1)
 
     return s, [A, B, C]
 
 
 def generate_autotvm_template(log_file, target, trials):
-    task = autotvm.task.create("gemm", args=(N, L, M, "float32"), target=target)
+    task = autotvm.task.create("gemm_layernorm", args=(N, L, M, "float32"), target=target)
     #print(task.config_space)
     tuner = autotvm.tuner.XGBTuner(task, loss_type="rank")
 

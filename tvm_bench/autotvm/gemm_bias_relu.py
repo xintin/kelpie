@@ -13,26 +13,29 @@ sys.path.append(os.path.dirname(SCRIPT_DIR))
 from utils import *
 
 ## ------------------ Global ---------------------
+alpha = 1.0000001
+beta = 0.4
 N, L, M = 1000, 1000, 1000
 dtype = "float32"
 search_space = [1] + [i for i in range(2,129,2)]
 
 ## ----------------- Benchmark -------------------
-def mm(N, L, M, dtype="float32"):
+def gemm_bias_relu(N, L, M, dtype="float32") -> te.Tensor:
     A = te.placeholder((N, L), name="A", dtype=dtype)
     B = te.placeholder((L, M), name="B", dtype=dtype)
-    C = topi.matmul(A, B)
-    return [A, B, C]
-## ---------------------------------------------
+    bias = te.placeholder((N, M), name="bias", dtype=dtype)
+    C = topi.matmul(A, B) * beta
+    D = topi.add(C, bias) * alpha
+    E = topi.nn.relu(D)
+    return [A, B, bias, C, D, E]
 
-@autotvm.template("gemm")
-def gemm(N, L, M, dtype="float"):
-    A, B, C = mm(N, L, M, dtype)
-    s = te.create_schedule(C.op)
+@autotvm.template("gemm_bias_relu")
+def gemm_bias_relu_autotvm(N, L, M, dtype="float32"):
+    A, B, bias, C, D, E = gemm_bias_relu(N, L, M)
+    s = te.create_schedule(E.op)
 
     # schedule
-    y, x = s[C].op.axis
-    k = s[C].op.reduce_axis[0]
+    y, x  = s[E].op.axis
 
     # get the config object
     cfg = autotvm.get_config()
@@ -42,16 +45,16 @@ def gemm(N, L, M, dtype="float"):
     cfg.define_knob("tile_y", search_space)
 
     # schedule according to config
-    x0, x1 = s[C].split(x, cfg["tile_x"].val)
-    y0, y1 = s[C].split(y, cfg["tile_y"].val)
+    x0, x1 = s[E].split(x, cfg["tile_x"].val)
+    y0, y1 = s[E].split(y, cfg["tile_y"].val)
 
-    s[C].reorder(y0, x0, k, y1, x1)
+    s[E].reorder(y0, x0, y1, x1)
 
-    return s, [A, B, C]
+    return s, [A, B, bias, C, D, E]
 
 
 def generate_autotvm_template(log_file, target, trials):
-    task = autotvm.task.create("gemm", args=(N, L, M, "float32"), target=target)
+    task = autotvm.task.create("gemm_bias_relu", args=(N, L, M, "float32"), target=target)
     #print(task.config_space)
     tuner = autotvm.tuner.XGBTuner(task, loss_type="rank")
 

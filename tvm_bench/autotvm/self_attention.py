@@ -13,26 +13,31 @@ sys.path.append(os.path.dirname(SCRIPT_DIR))
 from utils import *
 
 ## ------------------ Global ---------------------
-N, L, M = 1000, 1000, 1000
+N, L, M = 4096, 64, 4096
 dtype = "float32"
 search_space = [1] + [i for i in range(2,129,2)]
 
 ## ----------------- Benchmark -------------------
-def mm(N, L, M, dtype="float32"):
+def self_attention(N, L, M, dtype="float32") -> te.Tensor:
     A = te.placeholder((N, L), name="A", dtype=dtype)
     B = te.placeholder((L, M), name="B", dtype=dtype)
-    C = topi.matmul(A, B)
-    return [A, B, C]
-## ---------------------------------------------
+    C = te.placeholder((N, L), name="C", dtype=dtype)
+    k = te.reduce_axis((0, L), name="k")
+    D = te.compute((N, M), lambda i, j: te.sum(A[i, k] * B[k, j], axis=k), name="D")
+    E = te.compute((N, M), lambda i, j: D[i, j] * (1.0 / np.sqrt(N)))
+    F = topi.nn.softmax(E)
+    G = topi.nn.matmul(F, C)
 
-@autotvm.template("gemm")
-def gemm(N, L, M, dtype="float"):
-    A, B, C = mm(N, L, M, dtype)
-    s = te.create_schedule(C.op)
+    return [A, B, C, G]
 
+@autotvm.template("self_attention")
+def self_attention_autotvm(N, L, M, dtype="float32"):
+    A, B, C, D = self_attention(N, L, M)
+    s = te.create_schedule(D.op)
+    
+    #print(s[D].op.axis)
     # schedule
-    y, x = s[C].op.axis
-    k = s[C].op.reduce_axis[0]
+    y, x  = s[D].op.axis
 
     # get the config object
     cfg = autotvm.get_config()
@@ -42,16 +47,16 @@ def gemm(N, L, M, dtype="float"):
     cfg.define_knob("tile_y", search_space)
 
     # schedule according to config
-    x0, x1 = s[C].split(x, cfg["tile_x"].val)
-    y0, y1 = s[C].split(y, cfg["tile_y"].val)
+    x0, x1 = s[D].split(x, cfg["tile_x"].val)
+    y0, y1 = s[D].split(y, cfg["tile_y"].val)
 
-    s[C].reorder(y0, x0, k, y1, x1)
+    s[D].reorder(y0, x0, y1, x1)
 
-    return s, [A, B, C]
+    return s, [A, B, C, D]
 
 
 def generate_autotvm_template(log_file, target, trials):
-    task = autotvm.task.create("gemm", args=(N, L, M, "float32"), target=target)
+    task = autotvm.task.create("self_attention", args=(N, L, M, "float32"), target=target)
     #print(task.config_space)
     tuner = autotvm.tuner.XGBTuner(task, loss_type="rank")
 
