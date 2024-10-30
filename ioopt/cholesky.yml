@@ -1,0 +1,14 @@
+dims: [i, j, k]
+
+arrays:
+  a: [[i, k], 2]
+  fdot: [[i], 1]
+
+reuse:
+  a: [j]
+  fdot: [j]
+
+values:
+  n_levels: 3
+  cache: [576, 24576, 26880]
+  dims: [1000, 1000, 1000]

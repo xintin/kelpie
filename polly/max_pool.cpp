@@ -42,7 +42,7 @@ int main() {
     std::vector<std::vector<float>> input(input_height, std::vector<float>(input_width));
     for (int i = 0; i < input_height; ++i) {
         for (int j = 0; j < input_width; ++j) {
-            input[i][j] = static_cast<float>(std::rand()) / RAND_MAX * 100;
+            input[i][j] = static_cast<float>(std::rand()) / static_cast<float>(RAND_MAX) * 100;
         }
     }
 

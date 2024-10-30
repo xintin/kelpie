@@ -1,0 +1,17 @@
+dims: [i]
+
+arrays:
+  input: [[i], 1]
+  exp_values: [[i], 2]
+  output_naive: [[i], 2]
+
+reuse:
+  input: []
+  exp_values: []
+  output_naive: []
+
+values:
+  n_levels: 3
+  cache: [576, 24576, 26880]          # Cache sizes in words for L1, L2, L3
+  dims: [10000000]                    # Dimension for i based on inp_size
+  max_val: float

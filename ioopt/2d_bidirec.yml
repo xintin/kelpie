@@ -1,0 +1,12 @@
+dims: [i, j]
+
+arrays:
+  a: [[i, j], 2]
+
+reuse:
+  a: [j]
+
+values:
+  n_levels: 3
+  cache: [576, 24576, 26880]  # Cache sizes in words for L1, L2, L3
+  dims: [10068, 10068]

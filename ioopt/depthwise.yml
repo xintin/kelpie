@@ -1,0 +1,19 @@
+dims: [n, c, i, j, ki, kj]
+
+arrays:
+  input: [[n, c, i + ki * 1 - 1, j + kj * 1 - 1], 1]
+  filters: [[c, 0, ki, kj], 1]
+  output: [[n, c, i, j], 2]
+
+reuse:
+  input: [n, c, i, j]
+  filters: [n, c]
+  output: [ki, kj]
+
+values:
+  n_levels: 3
+  cache: [576, 24576, 26880]    # Cache sizes in words for L1, L2, L3
+  dims: [128, 84, 83, 83, 5, 5]  # Based on BATCH_SIZE, CHANNELS, HEIGHT, WIDTH, FILTER_SIZE
+  stride: 1
+  padding: 1
+  dilation: 1

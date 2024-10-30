@@ -1,0 +1,15 @@
+dims: [i, j, ki, kj]
+
+arrays:
+  input: [[i + ki, j + kj], 1]
+  output: [[i, j], 2]
+
+reuse:
+  input: [i, j]
+  output: [ki, kj]
+
+values:
+  n_levels: 3
+  cache: [576, 24576, 26880]         # Cache sizes in words for L1, L2, L3
+  dims: [10000, 10000, 2, 2]         # Based on input_height, input_width, and pool_size
+  pool_size: 2

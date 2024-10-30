@@ -1,0 +1,21 @@
+dims: [i, j, k]
+
+arrays:
+  Q: [[i, k], 1]
+  K: [[i, k], 1]
+  V: [[i, k], 1]
+  K_T: [[k, i], 2]
+  QK_T: [[i, j], 2]
+
+reuse:
+  Q: [j]
+  K: [j]
+  V: [i]
+  K_T: [j]
+  QK_T: [k]
+
+values:
+  n_levels: 3
+  cache: [576, 24576, 26880]         # Cache sizes in words for L1, L2, L3
+  dims: [4096, 4096, 64]             # Based on SEQ_LEN and EMB_DIM
+  scale: 0.125                       # scale = 1 / sqrt(EMB_DIM)

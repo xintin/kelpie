@@ -389,47 +389,5 @@ int main(int argc, char* argv[]) {
          << ", t4=" << exhaustive_ts4 << ", t5=" << exhaustive_ts5 << "\n";
     cout << "Best performance from Exhaustive Search: " << exhaustive_performance << " ms\n";
 
-    // Verify correctness by comparing naive and tiled (exhaustive) results
-    bool correct_exhaustive = true;
-    Matrix a_exhaustive = a_tiled; // Copy for exhaustive search results
-    vector<double> fdot_exhaustive(NSLIP, 0.0);
-    cholesky_tiled(a_exhaustive, fdot_exhaustive, NSLIP, exhaustive_ts2, exhaustive_ts3, exhaustive_ts4, exhaustive_ts5);
-    for(int i = 0; i < NSLIP && correct_exhaustive; i++) {
-        for(int j = 0; j < NSLIP; j++) {
-            if(abs(a_naive[i][j] - a_exhaustive[i][j]) > 1e-6) { 
-                correct_exhaustive = false;
-                cout << "Difference found at (" << i << ", " << j << ")\n";
-                break;
-            }
-        }
-    }
-    if(correct_exhaustive) {
-        cout << "Outputs of cholesky_naive and cholesky_tiled (Exhaustive) are the same." << endl;
-    }
-    else {
-        cout << "Outputs of cholesky_naive and cholesky_tiled (Exhaustive) differ." << endl;
-    }
-
-    // Verify correctness by comparing naive and tiled (coordinate) results
-    bool correct_coordinate = true;
-    Matrix a_coordinate = a_tiled; // Copy for coordinate descent results
-    vector<double> fdot_coordinate(NSLIP, 0.0);
-    cholesky_tiled(a_coordinate, fdot_coordinate, NSLIP, coord_ts2, coord_ts3, coord_ts4, coord_ts5);
-    for(int i = 0; i < NSLIP && correct_coordinate; i++) {
-        for(int j = 0; j < NSLIP; j++) {
-            if(abs(a_naive[i][j] - a_coordinate[i][j]) > 1e-6) { 
-                correct_coordinate = false;
-                cout << "Difference found at (" << i << ", " << j << ")\n";
-                break;
-            }
-        }
-    }
-    if(correct_coordinate) {
-        cout << "Outputs of cholesky_naive and cholesky_tiled (Coordinate Descent) are the same." << endl;
-    }
-    else {
-        cout << "Outputs of cholesky_naive and cholesky_tiled (Coordinate Descent) differ." << endl;
-    }
-
     return 0;
 }

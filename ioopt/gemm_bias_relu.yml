@@ -1,0 +1,20 @@
+dims: [i, j, p]
+
+arrays:
+  A: [[i, p], 1]
+  B: [[p, j], 1]
+  output_naive: [[i, j], 2]
+  bias: [[j], 1]
+
+reuse:
+  A: [j]
+  B: [i]
+  output_naive: [p]
+  bias: [i, p]
+
+values:
+  n_levels: 3
+  cache: [576, 24576, 26880]           # Cache sizes in words for L1, L2, L3
+  dims: [1000, 1000, 1000]              # Dimensions for i, j, p based on input_height and input_width
+  alpha: 1.0
+  beta: 0.4

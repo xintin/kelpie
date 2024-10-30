@@ -1,0 +1,16 @@
+dims: [i, j, ki, kj]
+
+arrays:
+  A: [[i + ki, j + kj], 1]
+  B: [[ki, kj], 1]
+  C: [[i, j], 2]
+
+reuse:
+  A: [i, j]
+  B: [i, j]
+  C: [ki, kj]
+
+values:
+  n_levels: 3
+  cache: [576, 24576, 26880]   # Cache sizes in words for L1, L2, L3
+  dims: [1000, 1000, 3, 3]

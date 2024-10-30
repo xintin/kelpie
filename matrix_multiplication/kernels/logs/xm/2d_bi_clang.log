@@ -1,0 +1,43 @@
+Sat Oct 26 05:27:35 PM EDT 2024
+Execution time of bidirec_naive_2d: 788.375 ms
+Execution time of bidirec_2d_pluto with tile size 32: 762.43 ms
+Execution time of bidirec_2d_expt with tile size 128: 726.033 ms
+Outputs of bidirec_naive_2d and bidirec_2d_pluto are the same.
+Outputs of bidirec_naive_2d and bidirec_2d_expt are the same.
+Running bidirec_2d_naive...
+Execution time of bidirec_naive_2d: 7.78091 ms
+
+Running bidirec_2d_pluto with tile_size_t2 = 32...
+Execution time of bidirec_2d_pluto: 7.47495 ms
+
+Performing Coordinate Descent...
+Starting Coordinate Descent...
+Performance at tile_size_t2 = 16: 8.07382 ms
+Performance at tile_size_t2 = 64: 7.04113 ms
+Improving tile_size_t2 from 32 to 64 with performance 7.04113 ms
+Performance at tile_size_t2 = 32: 7.50789 ms
+Performance at tile_size_t2 = 128: 6.69247 ms
+Improving tile_size_t2 from 64 to 128 with performance 6.69247 ms
+Performance at tile_size_t2 = 64: 7.38796 ms
+Performance at tile_size_t2 = 256: 7.31636 ms
+Coordinate Descent converged to tile_size_t2 = 128 with performance = 6.69247 ms
+Coordinate Descent took 60.2636 ms to converge.
+
+Performing Exhaustive Search...
+Starting Exhaustive Search...
+Performance at tile_size_t2 = 1: 7.60002 ms
+Performance at tile_size_t2 = 2: 7.11225 ms
+Performance at tile_size_t2 = 4: 7.05023 ms
+Performance at tile_size_t2 = 8: 6.59184 ms
+Performance at tile_size_t2 = 16: 7.94415 ms
+Performance at tile_size_t2 = 32: 7.66376 ms
+Performance at tile_size_t2 = 64: 7.39927 ms
+Performance at tile_size_t2 = 128: 6.86264 ms
+Performance at tile_size_t2 = 256: 6.92478 ms
+Exhaustive Search found tile_size_t2 = 8 with performance = 6.59184 ms
+Exhaustive Search took 75.9582 ms to complete.
+
+Difference found between a_naive and a_exhaustive at row 1
+Difference found between a_naive and a_coordinate at row 1
+Sat Oct 26 05:27:40 PM EDT 2024
+completed
