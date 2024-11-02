@@ -43,7 +43,8 @@ std::vector<std::vector<std::vector<std::vector<float>>>> output(
         CHANNELS, std::vector<std::vector<float>>(
                       output_height, std::vector<float>(output_width, 0.0f))));
 
-const std::vector<int> allowed_values = {1, 2, 4, 8, 16, 32, 64, 128, 256, 512};
+//const std::vector<int> allowed_values = {1, 2, 4, 8, 16, 32, 64, 128, 256, 512};
+const std::vector<int> allowed_values = {128, 256};
 
 inline int ceild(int n, int d) {
   return static_cast<int>(

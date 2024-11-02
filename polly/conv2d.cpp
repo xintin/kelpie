@@ -3,8 +3,8 @@
 #include <iostream>
 #include <vector>
 
-#define M 1000
-#define N 1000
+#define M 8000
+#define N 6000
 #define F 3
 
 using namespace std;

@@ -76,7 +76,7 @@ def cholesky_autotvm(N, dtype="float32"):
 def autotvm_template(log_file, target, trials):
     task = autotvm.task.create("cholesky",args=(N, "float32"), target=target)
     #print(task.config_space)
-    tuner = autotvm.tuner.XGBTuner(task, loss_type="rank")
+    tuner = autotvm.tuner.XGBTuner(task, loss_type="rank-binary")
 
     start = time.time()
     tuner.tune(

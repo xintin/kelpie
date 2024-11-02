@@ -58,7 +58,7 @@ def max_pool_autotvm(input_shape, dtype="float"):
 def generate_autotvm_template(log_file, target, trials):
     task = autotvm.task.create("max_pool", args=(input_shape, "float32"), target=target)
     #print(task.config_space)
-    tuner = autotvm.tuner.XGBTuner(task, loss_type="rank")
+    tuner = autotvm.tuner.XGBTuner(task, loss_type="rank-binary")
 
     start = time.time()
     tuner.tune(

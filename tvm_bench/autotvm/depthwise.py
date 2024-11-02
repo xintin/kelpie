@@ -65,7 +65,7 @@ def conv2d_autotvm(input_shape, filter_shape):
 def autotvm_template(log_file, target, trials):
     task = autotvm.task.create("depthwise",args=(input_shape, filter_shape), target=target,)
     #print(task.config_space)
-    tuner = autotvm.tuner.XGBTuner(task, loss_type="rank")
+    tuner = autotvm.tuner.XGBTuner(task, loss_type="rank-binary")
 
     start = time.time()
     tuner.tune(

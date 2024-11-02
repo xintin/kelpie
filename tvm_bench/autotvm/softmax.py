@@ -50,7 +50,7 @@ def softmax_autotvm(N, dtype="float"):
 def generate_autotvm_template(log_file, target, trials):
     task = autotvm.task.create("softmax", args=(N, "float32"), target=target)
     #print(task.config_space)
-    tuner = autotvm.tuner.XGBTuner(task, loss_type="rank")
+    tuner = autotvm.tuner.XGBTuner(task, loss_type="rank-binary")
 
     start = time.time()
     tuner.tune(

@@ -56,7 +56,7 @@ def gemm_bilinear_autotvm(N, L, M, dtype="float32"):
 def generate_autotvm_template(log_file, target, trials):
     task = autotvm.task.create("gemm_bilinear", args=(N, L, M, "float32"), target=target)
     #print(task.config_space)
-    tuner = autotvm.tuner.XGBTuner(task, loss_type="rank")
+    tuner = autotvm.tuner.XGBTuner(task, loss_type="rank-binary")
 
     start = time.time()
     tuner.tune(

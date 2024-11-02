@@ -1,0 +1,1 @@
+{"input": ["llvm -keys=cpu -mtriple=x86_64-unknown-linux-gnu", "gemm_layernorm", [1000, 1000, 1000, "float32"], {}], "config": {"index": 2209, "code_hash": null, "entity": [["tile_x", "ot", 128], ["tile_y", "ot", 66]]}, "result": [[1000000000.0], 2, 0.15914535522460938, 1730339831.5921056], "version": 0.2, "tvm_version": "0.18.0"}

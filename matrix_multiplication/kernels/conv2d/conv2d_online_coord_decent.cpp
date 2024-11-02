@@ -7,8 +7,8 @@
 #include <tuple>
 #include <vector>
 
-#define M 1000
-#define N 1000
+#define M 8000
+#define N 6000
 #define F 3 
 
 std::vector<std::vector<int>> A(M, std::vector<int>(N, -1)); 
@@ -18,6 +18,7 @@ std::vector<std::vector<int>>
       std::vector<int>(N - F + 1, 0)); 
 
 const std::vector<int> allowed_values = {1, 2, 4, 8, 16, 32, 64, 128, 256, 512};
+//std::vector<int> allowed_values;
 
 inline int ceild(int n, int d) {
   return static_cast<int>(
@@ -67,6 +68,10 @@ int measure_performance(int ts1, int ts2, int runs) {
 
 std::vector<std::tuple<int, int>> find_neighbors(int x, int y) {
   std::vector<std::tuple<int, int>> neighbors;
+
+  //for (int i = 1; i <= 64; i += 2) {
+  //  allowed_values.push_back(i);
+  //}
 
   for (int i = 0; i < 2; ++i) {
     int current = (i == 0) ? x : y;

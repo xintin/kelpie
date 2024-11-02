@@ -47,7 +47,7 @@ void conv2d_tiled(int tile_size_t2, int tile_size_t3) {
   int t2, t3, t4, t5, t6, t7, t8;
   int lbv, ubv;
 
-  if ((F <= N) && (M >= F)) {
+  //if ((F <= N) && (M >= F)) {
     for (t2 = 0; t2 <= (M - F) / tile_size_t2; t2++) {
       for (t3 = 0; t3 <= (N - F) / tile_size_t3; t3++) {
         for (t4 = tile_size_t2 * t2;
@@ -60,8 +60,8 @@ void conv2d_tiled(int tile_size_t2, int tile_size_t3) {
           }
         }
       }
-    }
-    if (F >= 1) {
+    //}
+    //if (F >= 1) {
       for (t2 = 0; t2 <= (M - F) / tile_size_t2; t2++) {
         for (t3 = 0; t3 <= (N - F) / tile_size_t3; t3++) {
           for (t4 = 0; t4 <= (F - 1) / tile_size_t2; t4++) {
@@ -86,7 +86,7 @@ void conv2d_tiled(int tile_size_t2, int tile_size_t3) {
       }
     }
   }
-}
+//}
 
 bool compare_results(const std::vector<std::vector<int>> &C1,
                      const std::vector<std::vector<int>> &C2) {
@@ -128,6 +128,7 @@ int main() {
 
       start = std::chrono::high_resolution_clock::now();
       conv2d_tiled(tile_size_t2, tile_size_t3);
+      //conv2d_tiled(40, 58);
       end = std::chrono::high_resolution_clock::now();
       duration = end - start;
 

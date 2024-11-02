@@ -13,4 +13,4 @@ reuse:
 values:
   n_levels: 3
   cache: [576, 24576, 26880]   # Cache sizes in words for L1, L2, L3
-  dims: [1000, 1000, 3, 3]
+  dims: [8000, 6000, 3, 3]

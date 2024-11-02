@@ -51,9 +51,10 @@ def gemm(N, L, M, dtype="float"):
 
 
 def generate_autotvm_template(log_file, target, trials):
-    task = autotvm.task.create("gemm", args=(N, L, M, "float32"), target=target)
-    #print(task.config_space)
-    tuner = autotvm.tuner.XGBTuner(task, loss_type="rank")
+    with tvm.transform.PassContext(opt_level=3):
+        task = autotvm.task.create("gemm", args=(N, L, M, "float32"), target=target)
+        #print(task.config_space)
+        tuner = autotvm.tuner.XGBTuner(task, loss_type="rank-binary")
 
     start = time.time()
     tuner.tune(

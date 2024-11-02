@@ -40,24 +40,24 @@ def conv2d_autotvm(input_shape, filter_shape):
     cfg = autotvm.get_config()
 
     # define search space
-    cfg.define_knob("tile_f", search_space)
+    # cfg.define_knob("tile_f", search_space)
     cfg.define_knob("tile_x", search_space)
     cfg.define_knob("tile_y", search_space)
 
     # schedule according to config
-    f0, f1 = s[C].split(f, cfg["tile_f"].val)
+    # f0, f1 = s[C].split(f, cfg["tile_f"].val)
     x0, x1 = s[C].split(x, cfg["tile_x"].val)
     y0, y1 = s[C].split(y, cfg["tile_y"].val)
 
-    s[C].reorder(f0, y0, x0, k, f1, y1, x1)
-
+    # s[C].reorder(f0, y0, x0, k, f1, y1, x1)
+    s[C].reorder(f, y0, x0, k, y1, x1)
     return s, [A, B, C]
 
 
 def autotvm_template(log_file, target, trials):
     task = autotvm.task.create("conv2d",args=(input_shape, filter_shape), target=target,)
     #print(task.config_space)
-    tuner = autotvm.tuner.XGBTuner(task, loss_type="rank")
+    tuner = autotvm.tuner.XGBTuner(task, loss_type="rank-binary")
 
     start = time.time()
     tuner.tune(
