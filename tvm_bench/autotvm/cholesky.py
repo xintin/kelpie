@@ -27,17 +27,17 @@ def cholesky(N, dtype) -> te.Tensor:
                 ), name="fdot_cond"
     )
 
-    A = te.compute([N, N], lambda i, j: te.if_then_else( 
+    B = te.compute([N, N], lambda i, j: te.if_then_else( 
         i == j, A[i][j] - fdot[i][j], A[i][j]
     ), name="A")
 
-    fdot = te.compute([N,], lambda i: te.sum(A[i, k] * A[k, i], axis=k), name="fdot")
+    fdot = te.compute([N,], lambda i: te.sum(B[i, k] * B[k, i], axis=k), name="fdot")
 
     res = te.compute(
         (N, N),
         lambda i, j: te.if_then_else(
             te.all(j > i),
-            (A[i, j] - fdot[i]) / A[i, i],
+            (A[i, j] - fdot[i]) / B[i, i],
             0.0
         ),
         name="res"
@@ -50,7 +50,7 @@ def cholesky_autotvm(N, dtype="float32"):
 
     s = te.create_schedule(B.op)
 
-    print(s[B].op.axis)
+    #print(s[B].op.axis)
     # schedule
     y, x  = s[B].op.axis
 

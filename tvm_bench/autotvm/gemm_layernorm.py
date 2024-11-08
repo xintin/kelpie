@@ -16,33 +16,32 @@ from utils import *
 alpha = 1.0000001
 beta = 0.4
 epsilon = 0.00001
-N, L, M = 1000, 1000, 1000
+batch, channels, height, width = 1, 500, 1000, 1000
+data_shape = (batch, channels, height, width)
 dtype = "float32"
 search_space = [1] + [i for i in range(2,129,2)]
 
 ## ----------------- Benchmark -------------------
-def gemm_layernorm(N, L, M, dtype="float32") -> te.Tensor:
-    A = te.placeholder((N, L), name="A", dtype=dtype)
-    B = te.placeholder((L, M), name="B", dtype=dtype)
-    k = te.reduce_axis((0, L), name="k")
-    C = te.compute((N, M), lambda i, j: te.sum(alpha * A[i, k] * B[k, j], axis=k), name="C")
-    D = te.compute((N, M), lambda i, j: te.add(C[i, j], C[i, j] * beta))
+def gemm_layernorm() -> te.Tensor:
+    data = te.placeholder(data_shape, name="data")
+    gamma = te.placeholder((channels,), name="gamma")
+    beta = te.placeholder((channels,), name="beta")
+    moving_mean = te.placeholder((channels,), name="moving_mean")
+    moving_var = te.placeholder((channels,), name="moving_var")
 
-    sum_mean = te.compute((N,), lambda i: te.sum(D[i, k], axis=k), name="sum_mean")
-    mean = te.compute((N,), lambda i: te.div(sum_mean[i], L), name="mean")
-    var = te.compute((N,), lambda i: te.sum((D[i, k] - mean[i]) * (D[i, k] - mean[i]), axis=k), name='variance')
-    norm = te.compute((N, M), lambda i, j: (D[i, j] - mean[i]) / te.sqrt(var[i] + epsilon), name='normalized')
-
-    return [A, B, norm]
+    output, _, _ = topi.nn.batch_norm(
+        data, gamma, beta, moving_mean, moving_var, axis=1, epsilon=epsilon
+    )
+    return [data, gamma, beta, moving_mean, moving_var, output]
 
 @autotvm.template("gemm_layernorm")
-def gemm_layernorm_autotvm(N, L, M, dtype="float32"):
-    A, B, C = gemm_layernorm(N, L, M)
+def gemm_layernorm_autotvm():
+    data, gamma, beta, moving_mean, moving_var, C = gemm_layernorm()
     s = te.create_schedule(C.op)
     
-    print(s[C].op.axis)
+    #print(s[C].op.axis)
     # schedule
-    y, x  = s[C].op.axis
+    _, y, x, k  = s[C].op.axis
 
     # get the config object
     cfg = autotvm.get_config()
@@ -50,18 +49,18 @@ def gemm_layernorm_autotvm(N, L, M, dtype="float32"):
     # define search space
     cfg.define_knob("tile_x", search_space)
     cfg.define_knob("tile_y", search_space)
+    cfg.define_knob("tile_k", search_space)
 
-    # schedule according to config
+    # # schedule according to config
     x0, x1 = s[C].split(x, cfg["tile_x"].val)
     y0, y1 = s[C].split(y, cfg["tile_y"].val)
+    k0, k1 = s[C].split(k, cfg["tile_k"].val)
 
-    s[C].reorder(y0, x0, y1, x1)
-
-    return s, [A, B, C]
+    return s, [data, gamma, beta, moving_mean, moving_var, C]
 
 
 def generate_autotvm_template(log_file, target, trials):
-    task = autotvm.task.create("gemm_layernorm", args=(N, L, M, "float32"), target=target)
+    task = autotvm.task.create("gemm_layernorm", args=(), target=target)
     #print(task.config_space)
     tuner = autotvm.tuner.XGBTuner(task, loss_type="rank-binary")
 
