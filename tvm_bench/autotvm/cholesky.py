@@ -19,25 +19,46 @@ search_space = [1] + [i for i in range(2,65,2)]
 
 def cholesky(N, dtype) -> te.Tensor:
     A = te.placeholder((N, N), name="A", dtype=dtype)
-    k = te.reduce_axis((0, N), name="k")
-    fdot = te.compute([N,N], lambda i, k: te.if_then_else(
-                    k < i,
-                    A[i, k] * A[k, i], 
+    k1 = te.reduce_axis((0, N), name="k1")
+    k2 = te.reduce_axis((0, N), name="k2")
+    k3 = te.reduce_axis((0, N), name="k3")
+    
+    B = te.compute([N,N], lambda i, j: te.if_then_else(
+                    j < i,
+                    A[i, j] * A[j, i], 
                     0
-                ), name="fdot_cond"
+                ), name="B"
+    )
+    fdot = te.compute([N,], lambda i: te.sum(B[i][k1], axis=k1), name="fdot")
+
+    A_diag = te.compute(
+        (N,N),
+        lambda i, j: te.if_then_else(
+            i != j,
+            A[i, i] - fdot[i],
+            A[i, j]
+        ),
+        name="A_diag"
     )
 
-    B = te.compute([N, N], lambda i, j: te.if_then_else( 
-        i == j, A[i][j] - fdot[i][j], A[i][j]
-    ), name="A")
+    A_temp = te.compute((N,N), lambda i, j: te.sum(A[i, k2] * A[k2, j], axis=k2), name="A_temp")
+    fdot3 = te.compute([N,], lambda i: te.sum(A_temp[i, k3], axis=k3), name="fdot3")
 
-    fdot = te.compute([N,], lambda i: te.sum(B[i, k] * B[k, i], axis=k), name="fdot")
+    A_offdiag = te.compute(
+        (N, N),
+        lambda i, j: te.if_then_else(
+            i < j,
+            A[i, j] - A_temp[i, j],
+            A[i, j]
+        ),
+        name="A_offdiag"
+    )
 
     res = te.compute(
         (N, N),
         lambda i, j: te.if_then_else(
-            te.all(j > i),
-            (A[i, j] - fdot[i]) / B[i, i],
+            i < j,
+            (A_offdiag[j, i] - fdot3[i]) / (A_diag[i][i]),
             0.0
         ),
         name="res"
@@ -46,13 +67,13 @@ def cholesky(N, dtype) -> te.Tensor:
 
 @autotvm.template("cholesky")
 def cholesky_autotvm(N, dtype="float32"):
-    A, B = cholesky(N, dtype)
+    A, res = cholesky(N, dtype)
 
-    s = te.create_schedule(B.op)
+    s = te.create_schedule(res.op)
 
     #print(s[B].op.axis)
     # schedule
-    y, x  = s[B].op.axis
+    y, x  = s[res].op.axis
 
     # get the config object
     cfg = autotvm.get_config()
@@ -62,12 +83,14 @@ def cholesky_autotvm(N, dtype="float32"):
     cfg.define_knob("tile_y", search_space)
 
     # schedule according to config
-    x0, x1 = s[B].split(x, cfg["tile_x"].val)
-    y0, y1 = s[B].split(y, cfg["tile_y"].val)
+    x0, x1 = s[res].split(x, cfg["tile_x"].val)
+    y0, y1 = s[res].split(y, cfg["tile_y"].val)
 
-    s[B].reorder(y0, x0, y1, x1)
+    s[res].reorder(y0, x0, y1, x1)
 
-    return s, [A, B]
+    #te.create_prim_func([A, res]).show()
+
+    return s, [A, res]
 
 
 ## ---------------------------------------------
