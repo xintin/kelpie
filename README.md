@@ -31,4 +31,9 @@ or run,
 `clang++ -O3 -fverbose-asm -g -S simple_comparison.cpp -o assembly_llvm.s`    
 
 `g++ -O3 -fverbose-asm -g -S simple_comparison.cpp -o assembly_gcc.s`  
-  
+
+
+### To evaluate GPU kernels:   
+```
+nvcc -arch=sm_80 -Xptxas=-v <kernel>.cu -o <kernel>
+```  
