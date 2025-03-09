@@ -1,0 +1,372 @@
+simple_comparison.cpp : 20 : 17 : remark : loop not vectorized
+    : value that could not be identified as reduction is used outside the
+          loop[-Rpass - analysis = loop - vectorize] C[i][j] +=
+    A[i][k] * B[k][j];
+^simple_comparison.cpp : 19 : 7 : remark : loop not vectorized
+    : cannot identify array
+          bounds[-Rpass - analysis = loop - vectorize] for (size_t k = 0; k < K;
+                                                            ++k) {
+  ^simple_comparison
+       .cpp : 19 : 7 : remark
+      : loop not vectorized[-Rpass - missed =
+                                loop - vectorize] simple_comparison
+       .cpp : 36 : 11 : remark : loop not vectorized
+      : cannot identify array
+            bounds[-Rpass - analysis = loop - vectorize] for (t5 = 32 * t3;
+                                                              t5 <=
+                                                              std::min(K - 1,
+                                                                       32 * t3 +
+                                                                           31);
+                                                              t5++) {
+    ^simple_comparison
+         .cpp : 36 : 11 : remark
+        : loop not vectorized[-Rpass - missed =
+                                  loop - vectorize] simple_comparison
+         .cpp : 68 : 13 : remark : loop not vectorized
+        : cannot identify array
+              bounds[-Rpass - analysis = loop - vectorize] for (size_t i = i2;
+                                                                i < i2 + Si2;
+                                                                i++) {
+      ^simple_comparison
+                      .cpp : 68 : 13 : remark
+          : loop not vectorized[-Rpass - missed =
+                                    loop - vectorize] simple_comparison
+                      .cpp : 68 : 13 : remark : loop not vectorized
+          : cannot identify array
+                bounds[-Rpass - analysis = loop - vectorize] simple_comparison
+                      .cpp : 68 : 13 : remark
+          : loop not vectorized[-Rpass - missed =
+                                    loop - vectorize] simple_comparison
+                      .cpp : 68 : 13 : remark : loop not vectorized
+          : cannot identify array
+                bounds[-Rpass - analysis = loop - vectorize] simple_comparison
+                      .cpp : 68 : 13 : remark
+          : loop not vectorized[-Rpass - missed =
+                                    loop - vectorize] simple_comparison
+                      .cpp : 68 : 13 : remark : loop not vectorized
+          : cannot identify array
+                bounds[-Rpass - analysis = loop - vectorize] simple_comparison
+                      .cpp : 68 : 13 : remark
+          : loop not vectorized[-Rpass - missed = loop - vectorize] In file
+                included from simple_comparison.cpp : 1
+          : In file included from /
+                  mnt / sw / nix / store / ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w -
+              gcc - 10.4.0 / lib / gcc / x86_64 - pc - linux -
+              gnu / 10.4.0 /../../../../ include / c++ / 10.4.0 /
+                  algorithm : 61 : / mnt / sw / nix / store /
+                                   ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w -
+              gcc - 10.4.0 / lib / gcc / x86_64 - pc - linux -
+              gnu / 10.4.0 /../../../../ include / c++ / 10.4.0 / bits /
+                  stl_algobase.h : 872 : 7 : remark
+          : vectorized
+            loop(vectorization width : 2,
+                 interleaved count : 2)[-Rpass =
+                                            loop - vectorize] for (; __first !=
+                                                                     __last;
+                                                                   ++__first) ^
+          / mnt / sw / nix / store / ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w - gcc -
+              10.4.0 / lib / gcc / x86_64 - pc - linux -
+              gnu / 10.4.0 /../../../../ include / c++ / 10.4.0 / bits /
+                  stl_algobase.h : 872 : 7 : remark :
+          vectorized loop(vectorization width : 2,
+                          interleaved count :
+                          2)[-Rpass = loop - vectorize] simple_comparison.cpp :
+          20 : 17 : remark : loop not vectorized :
+          value that could not be identified as reduction is used outside the
+              loop[-Rpass - analysis = loop - vectorize] C[i][j] +=
+          A[i][k] * B[k][j];
+      ^simple_comparison.cpp : 19 : 7 : remark : loop not vectorized
+          : cannot identify array
+                bounds[-Rpass - analysis = loop - vectorize] for (size_t k = 0;
+                                                                  k < K; ++k) {
+      ^
+simple_comparison.cpp:19:7: remark: loop not vectorized [-Rpass-missed=loop-vectorize]
+In file included from simple_comparison.cpp:1:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/algorithm:61:
+/mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/stl_algobase.h:1106:4: remark: loop not vectorized: loop control flow is not understood by vectorizer [-Rpass-analysis=loop-vectorize]
+          for (; __first1 != __last1; ++__first1, (void) ++__first2)
+          ^
+/mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/stl_algobase.h:1106:4: remark: loop not vectorized: loop control flow is not understood by vectorizer [-Rpass-analysis=loop-vectorize]
+/mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/stl_algobase.h:1106:4: remark: loop not vectorized: loop control flow is not understood by analyzer [-Rpass-analysis=loop-vectorize]
+/mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/stl_algobase.h:1106:4: remark: loop not vectorized [-Rpass-missed=loop-vectorize]
+In file included from simple_comparison.cpp:8:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/vector:67:
+/mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/stl_vector.h:354:4: remark: loop not vectorized: control flow cannot be substituted for a select [-Rpass-analysis=loop-vectorize]
+          _Tr::deallocate(_M_impl, __p, __n);
+          ^
+In file included from simple_comparison.cpp:5:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/iomanip:40:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/ios_base.h:41:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/locale_classes.h:40:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/string:41:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/allocator.h:46:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/x86_64-pc-linux-gnu/bits/c++allocator.h:33:
+/mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/ext/new_allocator.h:139:2: remark: loop not vectorized: call instruction cannot be vectorized [-Rpass-analysis=loop-vectorize]
+        ::operator delete(__p
+        ^
+In file included from simple_comparison.cpp:1:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/algorithm:62:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/stl_algo.h:62:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/stl_tempbuf.h:60:
+/mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/stl_construct.h:151:4: remark: loop not vectorized: could not determine number of loop iterations [-Rpass-analysis=loop-vectorize]
+          for (; __first != __last; ++__first)
+          ^
+/mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/stl_construct.h:151:4: remark: loop not vectorized [-Rpass-missed=loop-vectorize]
+In file included from simple_comparison.cpp:8:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/vector:67:
+/mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/stl_vector.h:354:4: remark: loop not vectorized: control flow cannot be substituted for a select [-Rpass-analysis=loop-vectorize]
+          _Tr::deallocate(_M_impl, __p, __n);
+          ^
+In file included from simple_comparison.cpp:5:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/iomanip:40:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/ios_base.h:41:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/locale_classes.h:40:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/string:41:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/allocator.h:46:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/x86_64-pc-linux-gnu/bits/c++allocator.h:33:
+/mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/ext/new_allocator.h:139:2: remark: loop not vectorized: call instruction cannot be vectorized [-Rpass-analysis=loop-vectorize]
+        ::operator delete(__p
+        ^
+In file included from simple_comparison.cpp:1:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/algorithm:62:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/stl_algo.h:62:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/stl_tempbuf.h:60:
+/mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/stl_construct.h:151:4: remark: loop not vectorized: could not determine number of loop iterations [-Rpass-analysis=loop-vectorize]
+          for (; __first != __last; ++__first)
+          ^
+/mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/stl_construct.h:151:4: remark: loop not vectorized [-Rpass-missed=loop-vectorize]
+In file included from simple_comparison.cpp:8:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/vector:67:
+/mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/stl_vector.h:354:4: remark: loop not vectorized: control flow cannot be substituted for a select [-Rpass-analysis=loop-vectorize]
+          _Tr::deallocate(_M_impl, __p, __n);
+          ^
+In file included from simple_comparison.cpp:5:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/iomanip:40:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/ios_base.h:41:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/locale_classes.h:40:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/string:41:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/allocator.h:46:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/x86_64-pc-linux-gnu/bits/c++allocator.h:33:
+/mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/ext/new_allocator.h:139:2: remark: loop not vectorized: call instruction cannot be vectorized [-Rpass-analysis=loop-vectorize]
+        ::operator delete(__p
+        ^
+In file included from simple_comparison.cpp:1:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/algorithm:62:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/stl_algo.h:62:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/stl_tempbuf.h:60:
+/mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/stl_construct.h:151:4: remark: loop not vectorized: could not determine number of loop iterations [-Rpass-analysis=loop-vectorize]
+          for (; __first != __last; ++__first)
+          ^
+/mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/stl_construct.h:151:4: remark: loop not vectorized [-Rpass-missed=loop-vectorize]
+In file included from simple_comparison.cpp:8:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/vector:67:
+/mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/stl_vector.h:354:4: remark: loop not vectorized: control flow cannot be substituted for a select [-Rpass-analysis=loop-vectorize]
+          _Tr::deallocate(_M_impl, __p, __n);
+          ^
+In file included from simple_comparison.cpp:5:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/iomanip:40:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/ios_base.h:41:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/locale_classes.h:40:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/string:41:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/allocator.h:46:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/x86_64-pc-linux-gnu/bits/c++allocator.h:33:
+/mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/ext/new_allocator.h:139:2: remark: loop not vectorized: call instruction cannot be vectorized [-Rpass-analysis=loop-vectorize]
+        ::operator delete(__p
+        ^
+In file included from simple_comparison.cpp:1:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/algorithm:62:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/stl_algo.h:62:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/stl_tempbuf.h:60:
+/mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/stl_construct.h:151:4: remark: loop not vectorized: could not determine number of loop iterations [-Rpass-analysis=loop-vectorize]
+          for (; __first != __last; ++__first)
+          ^
+/mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/stl_construct.h:151:4: remark: loop not vectorized [-Rpass-missed=loop-vectorize]
+In file included from simple_comparison.cpp:8:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/vector:67:
+/mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/stl_vector.h:354:4: remark: loop not vectorized: control flow cannot be substituted for a select [-Rpass-analysis=loop-vectorize]
+          _Tr::deallocate(_M_impl, __p, __n);
+          ^
+In file included from simple_comparison.cpp:5:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/iomanip:40:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/ios_base.h:41:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/locale_classes.h:40:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/string:41:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/allocator.h:46:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/x86_64-pc-linux-gnu/bits/c++allocator.h:33:
+/mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/ext/new_allocator.h:139:2: remark: loop not vectorized: call instruction cannot be vectorized [-Rpass-analysis=loop-vectorize]
+        ::operator delete(__p
+        ^
+In file included from simple_comparison.cpp:1:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/algorithm:62:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/stl_algo.h:62:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/stl_tempbuf.h:60:
+/mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/stl_construct.h:151:4: remark: loop not vectorized: could not determine number of loop iterations [-Rpass-analysis=loop-vectorize]
+          for (; __first != __last; ++__first)
+          ^
+/mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/stl_construct.h:151:4: remark: loop not vectorized [-Rpass-missed=loop-vectorize]
+In file included from simple_comparison.cpp:8:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/vector:67:
+/mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/stl_vector.h:354:4: remark: loop not vectorized: control flow cannot be substituted for a select [-Rpass-analysis=loop-vectorize]
+          _Tr::deallocate(_M_impl, __p, __n);
+          ^
+In file included from simple_comparison.cpp:5:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/iomanip:40:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/ios_base.h:41:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/locale_classes.h:40:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/string:41:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/allocator.h:46:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/x86_64-pc-linux-gnu/bits/c++allocator.h:33:
+/mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/ext/new_allocator.h:139:2: remark: loop not vectorized: call instruction cannot be vectorized [-Rpass-analysis=loop-vectorize]
+        ::operator delete(__p
+        ^
+In file included from simple_comparison.cpp:1:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/algorithm:62:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/stl_algo.h:62:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/stl_tempbuf.h:60:
+/mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/stl_construct.h:151:4: remark: loop not vectorized: could not determine number of loop iterations [-Rpass-analysis=loop-vectorize]
+          for (; __first != __last; ++__first)
+          ^
+/mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/stl_construct.h:151:4: remark: loop not vectorized [-Rpass-missed=loop-vectorize]
+In file included from simple_comparison.cpp:8:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/vector:67:
+/mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/stl_vector.h:354:4: remark: loop not vectorized: control flow cannot be substituted for a select [-Rpass-analysis=loop-vectorize]
+          _Tr::deallocate(_M_impl, __p, __n);
+          ^
+In file included from simple_comparison.cpp:5:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/iomanip:40:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/ios_base.h:41:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/locale_classes.h:40:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/string:41:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/allocator.h:46:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/x86_64-pc-linux-gnu/bits/c++allocator.h:33:
+/mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/ext/new_allocator.h:139:2: remark: loop not vectorized: call instruction cannot be vectorized [-Rpass-analysis=loop-vectorize]
+        ::operator delete(__p
+        ^
+In file included from simple_comparison.cpp:1:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/algorithm:62:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/stl_algo.h:62:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/stl_tempbuf.h:60:
+/mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/stl_construct.h:151:4: remark: loop not vectorized: could not determine number of loop iterations [-Rpass-analysis=loop-vectorize]
+          for (; __first != __last; ++__first)
+          ^
+/mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/stl_construct.h:151:4: remark: loop not vectorized [-Rpass-missed=loop-vectorize]
+In file included from simple_comparison.cpp:8:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/vector:67:
+/mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/stl_vector.h:354:4: remark: loop not vectorized: control flow cannot be substituted for a select [-Rpass-analysis=loop-vectorize]
+          _Tr::deallocate(_M_impl, __p, __n);
+          ^
+In file included from simple_comparison.cpp:5:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/iomanip:40:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/ios_base.h:41:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/locale_classes.h:40:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/string:41:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/allocator.h:46:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/x86_64-pc-linux-gnu/bits/c++allocator.h:33:
+/mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/ext/new_allocator.h:139:2: remark: loop not vectorized: call instruction cannot be vectorized [-Rpass-analysis=loop-vectorize]
+        ::operator delete(__p
+        ^
+In file included from simple_comparison.cpp:1:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/algorithm:62:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/stl_algo.h:62:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/stl_tempbuf.h:60:
+/mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/stl_construct.h:151:4: remark: loop not vectorized: could not determine number of loop iterations [-Rpass-analysis=loop-vectorize]
+          for (; __first != __last; ++__first)
+          ^
+/mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/stl_construct.h:151:4: remark: loop not vectorized [-Rpass-missed=loop-vectorize]
+In file included from simple_comparison.cpp:8:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/vector:67:
+/mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/stl_vector.h:354:4: remark: loop not vectorized: control flow cannot be substituted for a select [-Rpass-analysis=loop-vectorize]
+          _Tr::deallocate(_M_impl, __p, __n);
+          ^
+In file included from simple_comparison.cpp:5:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/iomanip:40:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/ios_base.h:41:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/locale_classes.h:40:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/string:41:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/allocator.h:46:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/x86_64-pc-linux-gnu/bits/c++allocator.h:33:
+/mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/ext/new_allocator.h:139:2: remark: loop not vectorized: call instruction cannot be vectorized [-Rpass-analysis=loop-vectorize]
+        ::operator delete(__p
+        ^
+In file included from simple_comparison.cpp:1:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/algorithm:62:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/stl_algo.h:62:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/stl_tempbuf.h:60:
+/mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/stl_construct.h:151:4: remark: loop not vectorized: could not determine number of loop iterations [-Rpass-analysis=loop-vectorize]
+          for (; __first != __last; ++__first)
+          ^
+/mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/stl_construct.h:151:4: remark: loop not vectorized [-Rpass-missed=loop-vectorize]
+In file included from simple_comparison.cpp:8:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/vector:67:
+/mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/stl_vector.h:354:4: remark: loop not vectorized: control flow cannot be substituted for a select [-Rpass-analysis=loop-vectorize]
+          _Tr::deallocate(_M_impl, __p, __n);
+          ^
+In file included from simple_comparison.cpp:5:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/iomanip:40:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/ios_base.h:41:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/locale_classes.h:40:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/string:41:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/allocator.h:46:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/x86_64-pc-linux-gnu/bits/c++allocator.h:33:
+/mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/ext/new_allocator.h:139:2: remark: loop not vectorized: call instruction cannot be vectorized [-Rpass-analysis=loop-vectorize]
+        ::operator delete(__p
+        ^
+In file included from simple_comparison.cpp:1:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/algorithm:62:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/stl_algo.h:62:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/stl_tempbuf.h:60:
+/mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/stl_construct.h:151:4: remark: loop not vectorized: could not determine number of loop iterations [-Rpass-analysis=loop-vectorize]
+          for (; __first != __last; ++__first)
+          ^
+/mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/stl_construct.h:151:4: remark: loop not vectorized [-Rpass-missed=loop-vectorize]
+In file included from simple_comparison.cpp:8:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/vector:66:
+/mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/stl_uninitialized.h:235:8: remark: loop not vectorized: loop control flow is not understood by vectorizer [-Rpass-analysis=loop-vectorize]
+              for (; __n > 0; --__n, (void) ++__cur)
+              ^
+/mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/stl_uninitialized.h:235:8: remark: loop not vectorized: loop control flow is not understood by vectorizer [-Rpass-analysis=loop-vectorize]
+In file included from simple_comparison.cpp:5:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/iomanip:40:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/ios_base.h:41:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/locale_classes.h:40:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/string:41:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/allocator.h:46:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/x86_64-pc-linux-gnu/bits/c++allocator.h:33:
+/mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/ext/new_allocator.h:121:27: remark: loop not vectorized: loop contains a switch statement [-Rpass-analysis=loop-vectorize]
+        return static_cast<_Tp*>(::operator new(__n * sizeof(_Tp)));
+                                 ^
+In file included from simple_comparison.cpp:8:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/vector:67:
+/mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/stl_vector.h:919:66: remark: loop not vectorized: value that could not be identified as reduction is used outside the loop [-Rpass-analysis=loop-vectorize]
+      {
+          return size_type(this->_M_impl._M_finish - this->_M_impl._M_start); }
+                                                                 ^
+In file included from simple_comparison.cpp:8:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/vector:66:
+/mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/stl_uninitialized.h:235:8: remark: loop not vectorized: loop control flow is not understood by analyzer [-Rpass-analysis=loop-vectorize]
+              for (; __n > 0; --__n, (void) ++__cur)
+              ^
+/mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/stl_uninitialized.h:235:8: remark: loop not vectorized [-Rpass-missed=loop-vectorize]
+In file included from simple_comparison.cpp:8:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/vector:67:
+/mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/stl_vector.h:354:4: remark: loop not vectorized: control flow cannot be substituted for a select [-Rpass-analysis=loop-vectorize]
+          _Tr::deallocate(_M_impl, __p, __n);
+          ^
+In file included from simple_comparison.cpp:5:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/iomanip:40:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/ios_base.h:41:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/locale_classes.h:40:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/string:41:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/allocator.h:46:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/x86_64-pc-linux-gnu/bits/c++allocator.h:33:
+/mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/ext/new_allocator.h:139:2: remark: loop not vectorized: call instruction cannot be vectorized [-Rpass-analysis=loop-vectorize]
+        ::operator delete(__p
+        ^
+In file included from simple_comparison.cpp:1:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/algorithm:62:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/stl_algo.h:62:
+In file included from /mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/stl_tempbuf.h:60:
+/mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/stl_construct.h:151:4: remark: loop not vectorized: could not determine number of loop iterations [-Rpass-analysis=loop-vectorize]
+          for (; __first != __last; ++__first)
+          ^
+/mnt/sw/nix/store/ym0r2w4dnzd0fg0pnlipazv3ww9a3j6w-gcc-10.4.0/lib/gcc/x86_64-pc-linux-gnu/10.4.0/../../../../include/c++/10.4.0/bits/stl_construct.h:151:4: remark: loop not vectorized [-Rpass-missed=loop-vectorize]

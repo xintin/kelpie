@@ -8,7 +8,7 @@
 #include <vector>
 #include <ctime>
 
-#define inp_size 1000000
+#define inp_size 10000000
 #define ceild(n,d)  ceil(((double)(n))/((double)(d)))
 #define floord(n,d) floor(((double)(n))/((double)(d)))
 #define max(x,y)    ((x) > (y)? (x) : (y))
@@ -196,6 +196,13 @@ int main(int argc, char *argv[]) {
     auto duration_timer = std::chrono::duration_cast<std::chrono::microseconds>(end_timer - start_timer);
     std::cout << "coordinate search took " << duration_timer.count() << " microseconds to converge." << "\n";
 
+   /* 
+    auto start_naive = high_resolution_clock::now();
+    auto result = coordinate_descent(tile_size, runs);
+    auto end_naive = high_resolution_clock::now();
+    auto duration_naive = duration_cast<microseconds>(end_naive - start_naive);
+    cout << "coordinate search took " << duration_naive.count() << " microseconds." << endl;
+    */
     std::cout << "Converged to: " << std::get<0>(result)
               << " with performance: " << std::get<1>(result) << " ms\n";
 
@@ -205,6 +212,14 @@ int main(int argc, char *argv[]) {
     end_timer = std::chrono::high_resolution_clock::now();
     duration_timer = std::chrono::duration_cast<std::chrono::microseconds>(end_timer - start_timer);
     std::cout << "coordinate search took " << duration_timer.count() << " microseconds to converge." << "\n";
+    
+    /*
+     * auto start_exhau = high_resolution_clock::now();
+    result = exhaustive_search(runs);
+    auto end_exhau = high_resolution_clock::now();
+    duration_naive = duration_cast<microseconds>(end_exhau - start_exhau);
+    cout << "exhaustive search took " << duration_naive.count() << " microseconds." << endl;
+    */
     std::cout << "Converged to: " << std::get<0>(result)
               << " with performance: " << std::get<1>(result) << " ms\n";
 

@@ -7,7 +7,6 @@
 #include <cmath>
 #include <tuple>
 #include <algorithm>
-#include <vector>
 
 using namespace std;
 using namespace std::chrono;
@@ -18,7 +17,7 @@ using namespace std::chrono;
 #define output_height (input_height - pool_size + 1)
 #define output_width (input_width - pool_size + 1)
 
-const std::vector<int> allowed_values = {1, 2, 4, 8, 16, 32, 64, 128, 256, 512};
+const vector<int> allowed_values = {1, 2, 4, 8, 16, 32, 64, 128, 256, 512};
 
 inline int ceild(int n, int d) {
     return static_cast<int>(ceil(static_cast<double>(n) / static_cast<double>(d)));
@@ -27,9 +26,6 @@ inline int ceild(int n, int d) {
 inline int floord(int n, int d) {
     return static_cast<int>(floor(static_cast<double>(n) / static_cast<double>(d)));
 }
-
-inline int max(int x, int y) { return std::max(x, y); }
-inline int min(int x, int y) { return std::min(x, y); }
 
 void computationKernel2(const vector<vector<int>>& input, vector<vector<int>>& output, int tile_size_height, int tile_size_width);
 
@@ -144,14 +140,14 @@ void initialize(vector<vector<int>>& A, vector<vector<int>>& B) {
     // Initialize the input matrix with random values
     for (int i = 0; i < input_height; ++i) {
         for (int j = 0; j < input_width; ++j) {
-            A[i][j] = static_cast<int>(rand()) / RAND_MAX * 100;
+            A[i][j] = rand() % 100; // Corrected random initialization
         }
     }
 
     // Initialize filter matrix B with 0
     for (int i = 0; i < output_height; ++i) {
         for (int j = 0; j < output_width; ++j) {
-            B[i][j] = static_cast<int>(0);
+            B[i][j] = 0;
         }
     }
 }
@@ -166,22 +162,21 @@ int main() {
     initialize(A, B);
 
     // Perform coordinate descent and measure time
-    int runs = 1; 
-    auto start_timer = std::chrono::high_resolution_clock::now();
-    auto result = coordinate_descent(A, B, 1, 1, runs);
-    auto end_timer = std::chrono::high_resolution_clock::now();
-    auto duration_timer = std::chrono::duration_cast<std::chrono::milliseconds>(end_timer - start_timer);
-    std::cout << "Coordinate search took " << duration_timer.count() << " milliseconds to converge." << "\n";
+    int runs = 1; // Example number of runs
     
+    auto start_timer = high_resolution_clock::now();
+    auto result = coordinate_descent(A, B, 1, 1, runs);
+    auto end_timer = high_resolution_clock::now();
+    auto duration_timer = duration_cast<microseconds>(end_timer - start_timer);
+    cout << "coordinate search took " << duration_timer.count() << " microseconds to converge." << endl;    
     cout << "Coordinate Descent result: (" << get<0>(result) << ", " << get<1>(result) << ") with performance: " << get<2>(result) << " ms\n";
 
     initialize(A, B);
-    start_timer = std::chrono::high_resolution_clock::now();
+    start_timer = high_resolution_clock::now();
     result = exhaustive_search(A, B, runs);
-    end_timer = std::chrono::high_resolution_clock::now();
-    duration_timer = std::chrono::duration_cast<std::chrono::milliseconds>(end_timer - start_timer);
-    std::cout << "Exhaustive search took " << duration_timer.count() << " milliseconds to converge." << "\n";
-    
+    end_timer = high_resolution_clock::now();
+    duration_timer = duration_cast<microseconds>(end_timer - start_timer);
+    cout << "Exhaustive search took " << duration_timer.count() << " microseconds to converge." << endl;
     cout << "Exhaustive Search result: (" << get<0>(result) << ", " << get<1>(result) << ") with performance: " << get<2>(result) << " ms\n";
 
     // initialize(A, B);
@@ -197,7 +192,7 @@ void computationKernel2(const vector<vector<int>>& input, vector<vector<int>>& o
         for (int jj = 0; jj < output_width; jj += tile_size_width) {
             for (int i = ii; i < min(ii + tile_size_height, output_height); ++i) {
                 for (int j = jj; j < min(jj + tile_size_width, output_width); ++j) {
-                    float max_val = -1e10;
+                    int max_val = -1e10;
                     for (int ki = 0; ki < pool_size; ++ki) {
                         for (int kj = 0; kj < pool_size; ++kj) {
                             int current_val = input[i + ki][j + kj];
@@ -210,3 +205,4 @@ void computationKernel2(const vector<vector<int>>& input, vector<vector<int>>& o
         }
     }
 }
+

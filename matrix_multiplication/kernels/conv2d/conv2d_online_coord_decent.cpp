@@ -9,6 +9,8 @@
 
 #define M 8000
 #define N 6000
+//#define M 100000
+//#define N 10000
 #define F 3 
 
 std::vector<std::vector<int>> A(M, std::vector<int>(N, -1)); 
