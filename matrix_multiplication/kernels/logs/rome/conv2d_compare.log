@@ -1,3 +1,0 @@
-Standard conv2d time taken: 0.722274 seconds
-Tiled conv2d time taken (tile sizes 32, 32): 8.93308 seconds
-Results match for tile sizes (32, 32)

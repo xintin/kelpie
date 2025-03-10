@@ -1,5 +1,0 @@
-Naive version took 7325 milliseconds.
-Pluto version took 9930 milliseconds.
-Tiled version took 9660 milliseconds.
-Outputs match: naive v. tiled Yes
-Outputs match: naive v. pluto Yes
