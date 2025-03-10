@@ -1,12 +1,23 @@
 # Kelpie
 to update the git repo fetch/push url:     
 `git remote -v`  
-`git remote set-url origin https://github.com/xintin/eval_tiling_tools.git`  
+`git remote set-url origin https://github.com/xintin/kelpie.git`  
 confirm: `git remote -v`  
 
-### Results:  
-[Eval Results](https://docs.google.com/spreadsheets/d/1_VqXzBx2B6Bm_sRaVA9pj-VefE9d2efk0Jc_0lSkFy0/edit?usp=sharing)  
-[Discussion Doc](https://docs.google.com/document/d/1FyeBPwSbOcl6te-JognqiOizmNvFpjR9gca-U1BelME/edit?usp=sharing)
+## Introduction:  
+This project enhances polyhedral optimizations by integrating a dynamic post-optimization tuner into `Pluto`, addressing its static nature. By combining polyhedral-based static analysis with coordinate descent, it fine-tunes kernel parameters such as tiling sizes. This approach improves performance over both fully static optimizers (`Clang -O3`, `IOOpt`) and profile-guided techniques (`Apache TVM`), making polyhedral optimization more adaptable to modern architectures.
+
+## Dependencies:  
+| **Tool**       | **Version**      | **Installation Link**      |
+|----------------|------------------|------------------|
+| Pluto          | v0.11.4          | [Link](https://pluto-compiler.sourceforge.net)           |
+| gcc            | v13.2.0          | [Link](https://gcc.gnu.org/install/)           |
+| clang          | v16.0.0          | [Link](https://clang.llvm.org/get_started.html)           |
+| Polly          | 20.0.0git        | [Link](https://polly.llvm.org/get_started.html)           |
+| TVM            | v0.18.0          | [Link](https://tvm.apache.org/docs/install/index.html)           |
+| IOOpt          | -                | [Link](https://iocomplexity.corse.inria.fr)           |
+
+
 
 ### To evaluate IOOPT:
 `cd matrix_multiplication`   
