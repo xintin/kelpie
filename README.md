@@ -1,4 +1,4 @@
-# eval_tiling_tools
+# Kelpie
 to update the git repo fetch/push url:     
 `git remote -v`  
 `git remote set-url origin https://github.com/xintin/eval_tiling_tools.git`  
