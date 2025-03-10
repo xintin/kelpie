@@ -1,0 +1,23 @@
+
+Coordinate Descent:
+Starting position: 1 with performance: 13753 ms
+Tile size: 4 with performance: 10156 ms
+Tile size: 8 with performance: 8143 ms
+Tile size: 16 with performance: 8010 ms
+Tile size: 16 with performance: 7951 ms
+coordinate search took 183218 microseconds to converge.
+Converged to: 16 with performance: 7951 ms
+
+Exhaustive search:
+1 13685
+2 13006
+4 10173
+8 8156
+16 7986
+32 7987
+64 7973
+128 7961
+256 7939
+512 7965
+coordinate search took 92840 microseconds to converge.
+Converged to: 256 with performance: 7939 ms

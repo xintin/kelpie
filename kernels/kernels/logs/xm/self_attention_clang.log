@@ -1,0 +1,117 @@
+Sat Oct 26 05:32:46 PM EDT 2024
+Execution time of self_attention_naive: 16233.6 ms
+Execution time of self_attention_pluto: 16219 ms
+Execution time of self_attention_expt: 16101.7 ms
+Outputs of naive and pluto methods are the same.
+Outputs of naive and expt methods are the same.
+Execution time of self_attention_naive: 16678.6 ms 
+Execution time of self_attention_pluto: 16588 ms 
+Found better performance at (1, 2): 16712 ms
+Found better performance at (2, 1): 16471 ms
+Found better performance at (1, 1): 16591 ms
+Coordinate Descent converged to: (2, 1) with performance: 16471 milliseconds
+Coordinate search took 183203 milliseconds to converge.
+Performance at (1, 1): 16742 ms
+Performance at (1, 2): 16696 ms
+Performance at (1, 4): 16626 ms
+Performance at (1, 8): 16580 ms
+Performance at (1, 16): 16595 ms
+Performance at (1, 32): 16556 ms
+Performance at (1, 64): 16663 ms
+Performance at (1, 128): 16530 ms
+Performance at (1, 256): 16600 ms
+Performance at (1, 512): 16445 ms
+Performance at (2, 1): 16607 ms
+Performance at (2, 2): 16603 ms
+Performance at (2, 4): 16614 ms
+Performance at (2, 8): 16641 ms
+Performance at (2, 16): 16593 ms
+Performance at (2, 32): 16652 ms
+Performance at (2, 64): 16558 ms
+Performance at (2, 128): 16590 ms
+Performance at (2, 256): 16625 ms
+Performance at (2, 512): 16619 ms
+Performance at (4, 1): 16559 ms
+Performance at (4, 2): 16603 ms
+Performance at (4, 4): 16568 ms
+Performance at (4, 8): 16632 ms
+Performance at (4, 16): 16698 ms
+Performance at (4, 32): 16583 ms
+Performance at (4, 64): 16552 ms
+Performance at (4, 128): 16678 ms
+Performance at (4, 256): 16574 ms
+Performance at (4, 512): 16643 ms
+Performance at (8, 1): 16670 ms
+Performance at (8, 2): 16583 ms
+Performance at (8, 4): 16629 ms
+Performance at (8, 8): 16648 ms
+Performance at (8, 16): 16598 ms
+Performance at (8, 32): 16468 ms
+Performance at (8, 64): 16592 ms
+Performance at (8, 128): 16578 ms
+Performance at (8, 256): 16609 ms
+Performance at (8, 512): 16563 ms
+Performance at (16, 1): 16708 ms
+Performance at (16, 2): 16665 ms
+Performance at (16, 4): 16601 ms
+Performance at (16, 8): 16643 ms
+Performance at (16, 16): 16689 ms
+Performance at (16, 32): 16689 ms
+Performance at (16, 64): 16689 ms
+Performance at (16, 128): 16588 ms
+Performance at (16, 256): 16547 ms
+Performance at (16, 512): 16586 ms
+Performance at (32, 1): 16688 ms
+Performance at (32, 2): 16572 ms
+Performance at (32, 4): 16612 ms
+Performance at (32, 8): 16542 ms
+Performance at (32, 16): 16559 ms
+Performance at (32, 32): 16575 ms
+Performance at (32, 64): 16613 ms
+Performance at (32, 128): 16581 ms
+Performance at (32, 256): 16604 ms
+Performance at (32, 512): 16645 ms
+Performance at (64, 1): 16795 ms
+Performance at (64, 2): 16882 ms
+Performance at (64, 4): 16639 ms
+Performance at (64, 8): 16700 ms
+Performance at (64, 16): 16780 ms
+Performance at (64, 32): 16629 ms
+Performance at (64, 64): 16642 ms
+Performance at (64, 128): 16532 ms
+Performance at (64, 256): 16607 ms
+Performance at (64, 512): 16471 ms
+Performance at (128, 1): 16597 ms
+Performance at (128, 2): 16652 ms
+Performance at (128, 4): 16546 ms
+Performance at (128, 8): 16605 ms
+Performance at (128, 16): 16529 ms
+Performance at (128, 32): 16522 ms
+Performance at (128, 64): 16695 ms
+Performance at (128, 128): 16729 ms
+Performance at (128, 256): 16612 ms
+Performance at (128, 512): 16648 ms
+Performance at (256, 1): 16879 ms
+Performance at (256, 2): 16779 ms
+Performance at (256, 4): 16583 ms
+Performance at (256, 8): 16566 ms
+Performance at (256, 16): 16619 ms
+Performance at (256, 32): 16643 ms
+Performance at (256, 64): 16640 ms
+Performance at (256, 128): 16651 ms
+Performance at (256, 256): 16637 ms
+Performance at (256, 512): 16578 ms
+Performance at (512, 1): 16731 ms
+Performance at (512, 2): 16808 ms
+Performance at (512, 4): 16576 ms
+Performance at (512, 8): 16607 ms
+Performance at (512, 16): 16541 ms
+Performance at (512, 32): 16662 ms
+Performance at (512, 64): 16642 ms
+Performance at (512, 128): 16729 ms
+Performance at (512, 256): 16732 ms
+Performance at (512, 512): 16734 ms
+Exhaustive search converged to: (1, 512) with performance: 16445 milliseconds
+Exhaustive search took 1662775 milliseconds to complete.
+Sat Oct 26 06:04:55 PM EDT 2024
+completed
